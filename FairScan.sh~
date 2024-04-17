@@ -405,7 +405,7 @@ http_verbs () {
 	for i in $concatenation; do
 		verb_result=$(curl -sSikI -X OPTIONS "$i" | grep -w -E 'HTTP|Allow:' | sed "s|HTTP/1.1 404 Not Found||g")
 		test=${#verb_result}
-		if [[ -z $verb_result ]] ; then
+		if [[ $test > "1" ]] ; then
 			echo $i >> $1/$1-verbs.txt
 			echo $verb_result >> $1/$1-verbs.txt
 			echo "---" >> $1/$1-verbs.txt
