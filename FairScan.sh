@@ -24,13 +24,13 @@ nikto_maxtime="3m"
 # directory bruteforce wordlist for detected linux machines
 gobuster_dir_linux_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words.txt"
 # directory bruteforce extensions for detected linux machines
-gobuster_dir_linux_extensions="php,html,txt"
+gobuster_dir_linux_extensions="php,html,txt,pdf"
 
 ## Windows
 # directory bruteforce wordlist for detected windows machines
 gobuster_dir_windows_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words-lowercase.txt"
 # directory bruteforce extensions for detected windows machines
-gobuster_dir_windows_extensions="php,html,asp,aspx,jsp"
+gobuster_dir_windows_extensions="php,html,asp,aspx,jsp,pdf,wsdl"
 
 ## Unknown OS
 # directory bruteforce wordlist for NOT detected OS
