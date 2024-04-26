@@ -96,7 +96,7 @@ banner () {
                                                        (_____|           |_|
 '
 	print_purple "$title"
-	echo "	[*] Tricorder , script for automated enumeration [*]"
+	echo "	[*] PortCartographer, script for automated enumeration [*]"
 	echo ""
 	echo "	CODER:		C4l1b4n"
 	echo "	MODDER:		chromefinch"
