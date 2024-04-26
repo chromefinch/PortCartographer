@@ -58,7 +58,7 @@ whatweb_level="3"
 # NSE's scripts run by nmap
 nse="dns-nsec-enum,dns-nsec3-enum,dns-nsid,dns-recursion,dns-service-discovery,dns-srv-enum,fcrdns,ftp-anon,ftp-bounce,ftp-libopie,ftp-syst,ftp-vuln-cve2010-4221,http-apache-negotiation,http-apache-server-status,http-aspnet-debug,http-backup-finder,http-bigip-cookie,http-cakephp-version,http-config-backup,http-cookie-flags,http-devframework,http-exif-spider,http-favicon,http-frontpage-login,http-generator,http-git,http-headers,http-hp-ilo-info,http-iis-webdav-vuln,http-internal-ip-disclosure,http-jsonp-detection,http-mcmp,http-ntlm-info,http-passwd,http-php-version,http-qnap-nas-info,http-sap-netweaver-leak,http-security-headers,http-server-header,http-svn-info,http-trane-info,http-userdir-enum,http-vlcstreamer-ls,http-vuln-cve2010-0738,http-vuln-cve2011-3368,http-vuln-cve2014-2126,http-vuln-cve2014-2127,http-vuln-cve2014-2128,http-vuln-cve2014-2129,http-vuln-cve2015-1427,http-vuln-cve2015-1635,http-vuln-cve2017-1001000,http-vuln-misfortune-cookie,http-webdav-scan,http-wordpress-enum,http-wordpress-users,https-redirect,imap-capabilities,imap-ntlm-info,ip-https-discover,membase-http-info,msrpc-enum,mysql-audit,mysql-databases,mysql-empty-password,mysql-info,mysql-users,mysql-variables,mysql-vuln-cve2012-2122,nfs-ls,nfs-showmount,nfs-statfs,pop3-capabilities,pop3-ntlm-info,pptp-version,rdp-ntlm-info,rdp-vuln-ms12-020,realvnc-auth-bypass,riak-http-info,rmi-vuln-classloader,rpc-grind,rpcinfo,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-services,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-print-text,smb-protocols,smb-security-mode,smb-vuln-cve-2017-7494,smb-vuln-ms10-061,smb-vuln-ms17-010,smb-vuln-cve2009-3103,smb2-capabilities,smb2-security-mode,smb2-vuln-uptime,smtp-commands,smtp-ntlm-info,smtp-vuln-cve2011-1720,smtp-vuln-cve2011-1764,ssh-auth-methods,sshv1,ssl-ccs-injection,ssl-cert,ssl-heartbleed,ssl-poodle,sslv2-drown,sslv2,telnet-encryption,telnet-ntlm-info,tftp-enum,unusual-port,vnc-info,vnc-title"
 
-version="1.3.2"
+version="1.3.3"
 stepbystep="0"
 force="0"
 os=''
@@ -71,7 +71,7 @@ folder=$(pwd)
 #usage helper
 usage () {
 	echo ""
-	echo "Usage:    ./FairScan.sh [-h] [-s] [-f] [-w WORDLIST] -H [hostname] target_ip target_name"
+	echo "Usage:    ./Tricorder.sh [-h] [-s] [-f] -w [WORDLIST] -H [hostname] -o [Windows|Linux] target_ip target_name"
 	echo ""
 	echo "          target_ip         IP address of the target"
 	echo "          target_name       Target name, a directory will be created using this path"
@@ -80,26 +80,27 @@ usage () {
 	echo "          -h                Show this helper"
 	echo "          -s                Step-by-step: nmap scans are done first, then service port scans not in parallel, one by one."
 	echo "          -f                Force-scans. It doesn't perform ping to check if the host is alive."
-	echo "          -o                Force-scans with entered os which should be case sensitive Linux/Windows."
+	echo "          -o Windows|Linux  Force-scans with entered os which should be case sensitive Linux/Windows."
 	exit
 }
 
 banner () {
 	title='
-	    ______      _      _____
-	   / ____/___ _(_)____/ ___/_________ _____
-	  / /_  / __ `/ / ___/\__ \/ ___/ __ `/ __ \
-	 / __/ / /_/ / / /   ___/ / /__/ /_/ / / / /
-	/_/    \__,_/_/_/   /____/\___/\__,_/_/ /_/
+ _______    _                     _
+(_______)  (_)                   | |
+    _  ____ _  ____ ___   ____ __| |_____  ____
+   | |/ ___) |/ ___) _ \ / ___) _  | ___ |/ ___)
+   | | |   | ( (__| |_| | |  ( (_| | ____| |
+   |_|_|   |_|\____)___/|_|   \____|_____)_|
 
 '
-	print_blue "$title"
-	echo "	[*] FairScan , script for automated enumeration [*]"
+	print_purple "$title"
+	echo "	[*] Tricorder , script for automated enumeration [*]"
 	echo ""
 	echo "	CODER:		C4l1b4n"
 	echo "	MODDER:		chromefinch"
 	echo "	VERSION:	$version"
-	echo "	GITHUB:		https://github.com/C4l1b4n/FairScan"
+	echo "	GITHUB:		https://github.com/chromefinch/FairScan"
 	echo ""
 }
 
@@ -422,6 +423,9 @@ check_smb() {
 		enum4linux -a -M -l -d $ip 2> /dev/null >> smb/enum4linux_$name.txt
 		print_green "[-] Enum4linux done!"
 	fi
+}
+clone_ftp() {
+wget -m ftp://anonymous@$hostname:21
 }
 clean(){
 echo done
