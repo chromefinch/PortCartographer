@@ -42,6 +42,7 @@ $ ./PortCartographer.sh -s -w /usr/share/wordlists/dirb/common.txt 10.10.10.10 k
 $ ./PortCartographer.sh -f -H kioptrix4.com 10.10.10.10 kioptrix4
 $ ./PortCartographer.sh -h
 ```
+https://raw.githubusercontent.com/chromefinch/PortCartographer/master/demo.png
 
 ## Requirements
 ```
