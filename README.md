@@ -17,7 +17,7 @@ After the first scan, the remaining are done in parallel by default; otherwise y
 
 ## New Version Update (26/04/2024)
 New version of the tool released with new banner, modules, configurations and expanded code.
-Renamed to Tricorder as fairscan did not want my insane edits/mods. 
+Renamed to PortCartographer as fairscan did not want my insane edits/mods. 
 
 
 ## Usage
