@@ -34,6 +34,15 @@ Options: -w wordlist        Specify a wordlist for gobuster. (The default one is
          -o Windows|Linux  Force-scans with entered os which should be case sensitive Linux/Windows.
 ```
 
+## Examples
+```
+$ ./FairScan.sh 10.10.10.10 kioptrix1
+$ ./FairScan.sh -s 10.10.10.10 kioptrix2
+$ ./FairScan.sh -s -w /usr/share/wordlists/dirb/common.txt 10.10.10.10 kioptrix3
+$ ./FairScan.sh -f -H kioptrix4.com 10.10.10.10 kioptrix4
+$ ./FairScan.sh -h
+```
+
 ## Requirements
 ```
 ping
@@ -131,14 +140,6 @@ A directory with target_name as path/name will be created.
 Inside it, a note_$name.txt file will be created, where you can write your notes, plus another directory, named /Scans.
 Inside /Scans , output files will be stored in different folders.
 
-## Examples
-```
-$ ./FairScan.sh 10.10.10.10 kioptrix1
-$ ./FairScan.sh -s 10.10.10.10 kioptrix2
-$ ./FairScan.sh -s -w /usr/share/wordlists/dirb/common.txt 10.10.10.10 kioptrix3
-$ ./FairScan.sh -f -H kioptrix4.com 10.10.10.10 kioptrix4
-$ ./FairScan.sh -h
-```
 ## Notes
 C4l1b4n wrote this script to automate his enumeration, therefore it performs only what he used to running during his CTFs.
 I moded it because I have no sense. 
