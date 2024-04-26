@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-##                    ##
-## Written by C4l1b4n ##
-##                    ##
+##                        ##
+##   Written by C4l1b4n   ##
+##  Mod'd by chromefinch  ##
+##                        ##
 
 #----------------------------------------------------------------------------------------------------------------------
 ##### CONFIGURATIONS - CHANGE THEM #####
@@ -71,7 +72,7 @@ folder=$(pwd)
 #usage helper
 usage () {
 	echo ""
-	echo "Usage:    ./Tricorder.sh [-h] [-s] [-f] -w [WORDLIST] -H [hostname] -o [Windows|Linux] target_ip target_name"
+	echo "Usage:    ./PortCartographer.sh [-h] [-s] [-f] -w [WORDLIST] -H [hostname] -o [Windows|Linux] target_ip target_name"
 	echo ""
 	echo "          target_ip         IP address of the target"
 	echo "          target_name       Target name, a directory will be created using this path"
@@ -86,13 +87,13 @@ usage () {
 
 banner () {
 	title='
- _______    _                     _
-(_______)  (_)                   | |
-    _  ____ _  ____ ___   ____ __| |_____  ____
-   | |/ ___) |/ ___) _ \ / ___) _  | ___ |/ ___)
-   | | |   | ( (__| |_| | |  ( (_| | ____| |
-   |_|_|   |_|\____)___/|_|   \____|_____)_|
-
+ ______                  _______                                                _
+(_____ \             _  (_______)              _                               | |
+ _____) )__   ____ _| |_ _       _____  ____ _| |_ ___   ____  ____ _____ ____ | |__  _____  ____
+|  ____/ _ \ / ___|_   _) |     (____ |/ ___|_   _) _ \ / _  |/ ___|____ |  _ \|  _ \| ___ |/ ___)
+| |   | |_| | |     | |_| |_____/ ___ | |     | || |_| ( (_| | |   / ___ | |_| | | | | ____| |
+|_|    \___/|_|      \__)\______)_____|_|      \__)___/ \___ |_|   \_____|  __/|_| |_|_____)_|
+                                                       (_____|           |_|
 '
 	print_purple "$title"
 	echo "	[*] Tricorder , script for automated enumeration [*]"
@@ -100,7 +101,7 @@ banner () {
 	echo "	CODER:		C4l1b4n"
 	echo "	MODDER:		chromefinch"
 	echo "	VERSION:	$version"
-	echo "	GITHUB:		https://github.com/chromefinch/FairScan"
+	echo "	GITHUB:		https://github.com/chromefinch/PortCartographer"
 	echo ""
 }
 
