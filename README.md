@@ -77,7 +77,7 @@ SMB & co (if 139/tcp ,389/tcp or 445/tcp are discovered open):
 - Enum4linux's scan.
 
 FTP mirror (if 21/tcp is discovered): 
-- wget -m ftp://anonymous@hostname:21
+- wget -m ftp://anonymous@IP:21
 
 
 ## Configurations
