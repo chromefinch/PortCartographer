@@ -252,7 +252,7 @@ quick_nmap () {
 	fi
 	banner
 	echo ""
-	echo "TARGET ADDRESS:	$ip $hostname"
+	echo "TARGET ADDRESS:	$hostname"
 	echo "TARGET OS:	$os"
 	echo ""
 	if [ -z "$quickPorts" ] ; then
