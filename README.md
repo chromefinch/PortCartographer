@@ -20,6 +20,33 @@ New version of the tool released with new banner, modules, configurations and ex
 Renamed to Tricorder as fairscan did not want my insane edits/mods. 
 
 
+## Usage
+switches must be listed first
+```
+Usage:    ./Tricorder.sh [-h] [-s] [-f] -w [WORDLIST] -H [hostname] -o [Windows|Linux] target_ip target_name"
+         target_ip        Ip address of the target
+         target_name        Target name, a directory will be created using this path
+Options: -w wordlist        Specify a wordlist for gobuster. (The default one is big.txt from dirb's lists)
+         -H hostname    Specify hostname (fqdn). MUST BE IN QUOTES (add it to /etc/hosts)
+         -h                Show this helper
+         -s                Step-by-step: nmap scans are done first, then service port scans not in parallel, one by one.
+         -f                Force-scans. It doesn't perform ping to check if the host is alive.
+         -o Windows|Linux  Force-scans with entered os which should be case sensitive Linux/Windows.
+```
+
+## Requirements
+```
+ping
+nmap
+gobuster
+nikto
+curl
+enum4linux
+whatweb
+hakrawler
+wget
+```
+
 ## Supported modules (old and new)
 Generals:
 - OS detection through ping. (a little flaky so if you know the OS beforehand, using the -o switch is better)
@@ -98,33 +125,6 @@ If you want to quickly check your current configurations you can use this comman
 head -n 54 FairScan/FairScan.sh | tail -n 48
 ```
 
-
-## Requirements
-```
-ping
-nmap
-gobuster
-nikto
-curl
-enum4linux
-whatweb
-hakrawler
-wget
-```
-
-## Usage
-switches must be listed first
-```
-Usage:    ./Tricorder.sh [-h] [-s] [-f] -w [WORDLIST] -H [hostname] -o [Windows|Linux] target_ip target_name"
-         target_ip        Ip address of the target
-         target_name        Target name, a directory will be created using this path
-Options: -w wordlist        Specify a wordlist for gobuster. (The default one is big.txt from dirb's lists)
-         -H hostname    Specify hostname (fqdn). MUST BE IN QUOTES (add it to /etc/hosts)
-         -h                Show this helper
-         -s                Step-by-step: nmap scans are done first, then service port scans not in parallel, one by one.
-         -f                Force-scans. It doesn't perform ping to check if the host is alive.
-         -o Windows|Linux  Force-scans with entered os which should be case sensitive Linux/Windows.
-```
 
 ## Results
 A directory with target_name as path/name will be created.
