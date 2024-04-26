@@ -1,10 +1,10 @@
-# FairScan.sh
-rip of someone elses work with some additions 
+# Tricorder.sh
+rip of C4l1b4n work with some additions 
 
 
 ## Description
 This Bash script automates port scans and enumerates basic services.
-I wrote this "automator" because I found some in python, but I was searching for one written in bash. Moreover, I aimed to improve my skills in bash.
+C4l1b4n wrote this "automator" because he found some in python, but he was searching for one written in bash. Moreover, he aimed to improve my skills in bash. (don't we all)
 It can be used in CTFs like Vulnhub or HackTheBox and also in other penetration testing environments like OSCP.
 
 First, this script performs a quick nmap SYN-TCP scan (all ports) and then a deep one (open ports previously discovered) plus a UDP scan on top ports.
@@ -15,19 +15,20 @@ All these scans are saved into files, quick-scan's result is printed as console'
 After the first scan, the remaining are done in parallel by default; otherwise you can specify a step-by-step scan, where they will be performed sequentially.
 
 
-## New Version Update (23/04/2023)
-New version of the tool released with new banner, modules, configurations and a completely refactored code.
+## New Version Update (26/04/2024)
+New version of the tool released with new banner, modules, configurations and expanded code.
+Renamed to Tricorder as fairscan did not want my insane edits/mods. 
 
 
 ## Supported modules (old and new)
 Generals:
-- OS detection through ping.
+- OS detection through ping. (a little flaky so if you know the OS beforehand, using the -o switch is better)
 - Quick SYN-TCP nmap's scan, all ports.
 - Deep SYN-TCP nmap's scan on discovered open ports.
 - NSE namp's scan through selected scripts on most important services. No bruteforcing or autopwn scripts are on the list. 
 - UDP nmap's scan on TOP N ports, choosen by you in the configurations.
 
-HTTP and HTTPS (if 80/tcp or 443/tcp are discovered open):
+HTTP and HTTPS (if any/tcp outside of 443,22,445,21,139,135,139,3398 or 443/tcp are discovered open): 
 - Nikto's scan.
 - Gobuster's dir scan, with different wordlists based on OS discovered.
 - Gobuster's vhost scan, if "hostname" parameter is specified.
@@ -37,6 +38,9 @@ HTTP and HTTPS (if 80/tcp or 443/tcp are discovered open):
 
 SMB & co (if 139/tcp ,389/tcp or 445/tcp are discovered open):
 - Enum4linux's scan.
+
+FTP mirror (if 21/tcp is discovered): 
+- wget -m ftp://anonymous@hostname:21
 
 
 ## Configurations
@@ -105,11 +109,13 @@ curl
 enum4linux
 whatweb
 hakrawler
+wget
 ```
 
 ## Usage
+switches must be listed first
 ```
-Usage: ./FairScan.sh [-h] [-s] [-f] [-w WORDLIST] -H [hostname] target_ip target_name
+Usage:    ./Tricorder.sh [-h] [-s] [-f] -w [WORDLIST] -H [hostname] -o [Windows|Linux] target_ip target_name"
          target_ip        Ip address of the target
          target_name        Target name, a directory will be created using this path
 Options: -w wordlist        Specify a wordlist for gobuster. (The default one is big.txt from dirb's lists)
@@ -117,6 +123,7 @@ Options: -w wordlist        Specify a wordlist for gobuster. (The default one is
          -h                Show this helper
          -s                Step-by-step: nmap scans are done first, then service port scans not in parallel, one by one.
          -f                Force-scans. It doesn't perform ping to check if the host is alive.
+         -o Windows|Linux  Force-scans with entered os which should be case sensitive Linux/Windows.
 ```
 
 ## Results
@@ -133,8 +140,8 @@ $ ./FairScan.sh -f -H kioptrix4.com 10.10.10.10 kioptrix4
 $ ./FairScan.sh -h
 ```
 ## Notes
-I wrote this script to automate my enumeration, therefore it performs only what I'm used to running during my CTFs.
-I think I will add more features in the future.
+C4l1b4n wrote this script to automate his enumeration, therefore it performs only what he used to running during his CTFs.
+I moded it because I have no sense. 
 
 ## License
 This project is licensed under MIT License - see the LICENSE.md file for details.
