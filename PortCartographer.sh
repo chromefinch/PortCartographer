@@ -426,7 +426,15 @@ check_smb() {
 	fi
 }
 clone_ftp() {
-wget -m ftp://anonymous@$hostname:21
+	temp_ftp=$(echo "$check" | grep -w -E '21/tcp')
+	if [[ -n $temp_ftp ]] ; then
+		print_yellow "[+] Running ftp mirror..."
+		mkdir ftp
+		cd ftp
+		wget -m ftp://anonymous@$ip:21 2> /dev/null
+		cd ..
+		print_green "[-] ftp mirror done!"
+	fi
 }
 clean(){
 echo done
@@ -515,7 +523,7 @@ check_port_80 () {
 			robots_txt "http" $i &
 			whatweb_scan "http" $i &
 			#gobuster_vhost "http" $i
-			#gobuster_dir "http" $i
+			gobuster_dir "http" $i
 			http_verbs "http" $i &
 			#add more scans on port 80!
 		done
@@ -534,7 +542,7 @@ check_port_443 () {
 				robots_txt "https" "443" &
 				whatweb_scan "https" "443" &
 				#gobuster_vhost "https" "443"
-				#gobuster_dir "https" "443"
+				gobuster_dir "https" "443"
 				http_verbs "https" "443" &
 				hakrawler "https" "443" &
 				#add more scans on port 443!
@@ -597,7 +605,7 @@ all_scans() {
 	if [[ $stepbystep -ne "1" ]] ; then
 		quick_nmap
 		echo ""
-		read -t 90 -p "Do you want to run gobuster? enter one of the folowing (dir/vhost/all/N) " gobusterAnswer
+		read -t 15 -p "Do you want to run gobuster? enter one of the folowing (dir/vhost/all/N) dir is default: " gobusterAnswer
 		echo ""
 		slow_nmap
 		nse_nmap
@@ -605,12 +613,13 @@ all_scans() {
 		check_port_80
 		check_port_443
 		check_smb
+		clone_ftp
 		echo "[+] All scans launched..."
 		#add more scans!
 	else
 		quick_nmap
 		echo ""
-		read -t 90 -p "Do you want to run gobuster? enter one of the folowing (dir/vhost/all/N) " gobusterAnswer
+		read -t 15 -p "Do you want to run gobuster? enter one of the folowing (dir/vhost/all/N) dir is default: " gobusterAnswer
 		echo ""
 		slow_nmap
 		nse_nmap
@@ -620,6 +629,7 @@ all_scans() {
 		check_port_443
 		wait
 		check_smb
+		clone_ftp
 		#add more scans!
 	fi
 }
