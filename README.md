@@ -4,7 +4,7 @@ rip of C4l1b4n work with some additions
 
 ## Description
 This Bash script automates port scans and enumerates basic services.
-C4l1b4n wrote this "automator" because he found some in python, but he was searching for one written in bash. Moreover, he aimed to improve my skills in bash. (don't we all)
+C4l1b4n wrote this "automator" because he found some in python, but he was searching for one written in bash. Moreover, he aimed to improve my skills in bash (don't we all).
 It can be used in CTFs like Vulnhub or HackTheBox and also in other penetration testing environments like OSCP.
 
 First, this script performs a quick nmap SYN-TCP scan (all ports) and then a deep one (open ports previously discovered) plus a UDP scan on top ports.
