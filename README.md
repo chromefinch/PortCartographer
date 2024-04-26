@@ -1,4 +1,4 @@
-# Tricorder.sh
+# PortCartographer.sh
 rip of C4l1b4n work with some additions 
 
 
@@ -23,7 +23,7 @@ Renamed to Tricorder as fairscan did not want my insane edits/mods.
 ## Usage
 switches must be listed first
 ```
-Usage:    ./Tricorder.sh [-h] [-s] [-f] -w [WORDLIST] -H [hostname] -o [Windows|Linux] target_ip target_name"
+Usage:    ./PortCartographer.sh [-h] [-s] [-f] -w [WORDLIST] -H [hostname] -o [Windows|Linux] target_ip target_name"
          target_ip        Ip address of the target
          target_name        Target name, a directory will be created using this path
 Options: -w wordlist        Specify a wordlist for gobuster. (The default one is big.txt from dirb's lists)
@@ -36,11 +36,11 @@ Options: -w wordlist        Specify a wordlist for gobuster. (The default one is
 
 ## Examples
 ```
-$ ./FairScan.sh 10.10.10.10 kioptrix1
-$ ./FairScan.sh -s 10.10.10.10 kioptrix2
-$ ./FairScan.sh -s -w /usr/share/wordlists/dirb/common.txt 10.10.10.10 kioptrix3
-$ ./FairScan.sh -f -H kioptrix4.com 10.10.10.10 kioptrix4
-$ ./FairScan.sh -h
+$ ./PortCartographer.sh 10.10.10.10 kioptrix1
+$ ./PortCartographer.sh -s 10.10.10.10 kioptrix2
+$ ./PortCartographer.sh -s -w /usr/share/wordlists/dirb/common.txt 10.10.10.10 kioptrix3
+$ ./PortCartographer.sh -f -H kioptrix4.com 10.10.10.10 kioptrix4
+$ ./PortCartographer.sh -h
 ```
 
 ## Requirements
@@ -131,7 +131,7 @@ whatweb_level="3"
 
 If you want to quickly check your current configurations you can use this command:
 ```
-head -n 54 FairScan/FairScan.sh | tail -n 48
+head -n 54 ~/PortCartographer.sh | tail -n 48
 ```
 
 
