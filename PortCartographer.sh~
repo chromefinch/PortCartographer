@@ -159,6 +159,10 @@ check_dir () {
 		print_red "[**] $name directory already exists!" 1>&2
     		exit 1
 	fi
+	EUID -ne 0 ]]; then
+	print_red "This script must be run as root"
+	exit 1
+	fi
 }
 #check if the wordlists specified exist
 check_w () {
@@ -252,7 +256,7 @@ quick_nmap () {
 	fi
 	banner
 	echo ""
-	echo "TARGET ADDRESS:	$ip $hostname"
+	echo "TARGET ADDRESS:	$hostname"
 	echo "TARGET OS:	$os"
 	echo ""
 	if [ -z "$quickPorts" ] ; then

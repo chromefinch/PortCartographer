@@ -159,6 +159,10 @@ check_dir () {
 		print_red "[**] $name directory already exists!" 1>&2
     		exit 1
 	fi
+	if [[ $EUID -ne 0 ]]; then
+		print_red "This script must be run as root"
+			exit 1
+	fi
 }
 #check if the wordlists specified exist
 check_w () {
