@@ -344,7 +344,7 @@ gobuster_vhost () {
 #hakrawler scan, $1 --> protocol, $2 --> port
 hakrawler_crawl () {
 	print_yellow "[+] Running hakrawler on "$1://$hostname:$2"..."
-	echo "$1://$hostname:$2" | hakrawler -insecure -d 0 -u | sort -u -o $1/hakrawler$2_$name.txt >/dev/null 2>&1
+	echo "$1://$hostname:$2" | hakrawler -insecure -d 0 -u -timeout 5 | sort -u -o $1/hakrawler$2_$name.txt >/dev/null 2>&1
 	if ! [ -s $1/hakrawler$2_$name.txt ] ; then
 		rm $1/hakrawler$2_$name.txt
 		print_red "[-] hakrawler for $1://$hostname:$2 found nothing!"
