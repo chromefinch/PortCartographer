@@ -280,24 +280,47 @@ quick_nmap () {
 	fi
 }
 #nmap deep scan
-slow_nmap () {
-	ports=$(echo "$check" | grep "/tcp" | cut -d ' ' -f1 | cut -d '/' -f1 | tr '\n' ',' | rev | cut -c 2- | rev)
-	print_yellow "[+] Running deep Nmap scan on ports: $ports..."
-	nmap -sS -A -p $ports $ip > nmap/deepNmap_$name.txt
-	print_green "[-] Deep Nmap scan done!"
+slow_nmap() {
+  ports=$(echo "$check" | grep "/tcp" | cut -d ' ' -f1 | cut -d '/' -f1 | tr '\n' ',' | rev | cut -c 2- | rev)
+  print_yellow "[+] Running deep Nmap scan on ports: $ports..."
+  # Start the nmap scan in the background
+  nmap -sS -A -p $ports $ip > nmap/deepNmap_$name.txt &
+  slow_nmap_pid=$!
+  # Display PID and initial progress message
+  printf "Deep Nmap scan PID: $slow_nmap_pid "
+  # Wait for the nmap process to finish and update progress
+  while kill -0 $slow_nmap_pid 2> /dev/null; do
+    printf "\b${sp:i++%${#sp}:1}"
+    sleep 0.1
+  done
+  # Clear the progress line
+  printf "\r\033[K"
+  # Print the final message
+  print_green "[-] Deep Nmap scan done!"
+}
+#nmap NSE scan
+nse_nmap () {
+	print_yellow "[+] Running NSE Nmap scan..."
+	ports=$(echo "$check" | grep " open " | cut -d ' ' -f1 | cut -d '/' -f1 | tr '\n' ',' | rev | cut -c 2- | rev)
+	nmap -sV -n -O --script "$nse" -p $ports $ip > nmap/nse_$name.txt&
+    nse_nmap_pid=$!
+    # Display PID and initial progress message
+    printf "NSE Nmap scan PID: $nse_nmap_pid "
+    # Wait for the nmap process to finish and update progress
+    while kill -0 $nse_nmap_pid 2> /dev/null; do
+        printf "\b${sp:i++%${#sp}:1}"
+        sleep 0.1
+    done
+    # Clear the progress line
+    printf "\r\033[K"
+    # Print the final message
+	print_green "[-] NSE Nmap scan done!"
 }
 #namp UDP scan
 udp_nmap () {
 	print_yellow "[+] Running UDP Nmap scan on $nmap_top_udp common ports..."
 	nmap -sU --top-ports $nmap_top_udp --version-all $ip > nmap/udpNmap_$name.txt
 	print_green "[-] UDP Nmap scan done!"
-}
-#nmap NSE scan
-nse_nmap () {
-	print_yellow "[+] Running NSE Nmap scan..."
-	ports=$(echo "$check" | grep " open " | cut -d ' ' -f1 | cut -d '/' -f1 | tr '\n' ',' | rev | cut -c 2- | rev)
-	nmap -sV -n -O --script "$nse" -p $ports $ip > nmap/nse_$name.txt
-	print_green "[-] NSE Nmap scan done!"
 }
 
 #----------------------------------------------------------------------------------------------------------------------
