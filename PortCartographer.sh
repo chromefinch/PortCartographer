@@ -50,6 +50,9 @@ gobuster_threads="100"
 # aggression level
 whatweb_level="3"
 
+# Spinning characters
+sp='|/-\\'
+
 #----------------------------------------------------------------------------------------------------------------------
 ##### CONFIGURATIONS' END #####
 #----------------------------------------------------------------------------------------------------------------------
@@ -59,7 +62,7 @@ whatweb_level="3"
 # NSE's scripts run by nmap
 nse="dns-nsec-enum,dns-nsec3-enum,dns-nsid,dns-recursion,dns-service-discovery,dns-srv-enum,fcrdns,ftp-anon,ftp-bounce,ftp-libopie,ftp-syst,ftp-vuln-cve2010-4221,http-apache-negotiation,http-apache-server-status,http-aspnet-debug,http-backup-finder,http-bigip-cookie,http-cakephp-version,http-config-backup,http-cookie-flags,http-devframework,http-exif-spider,http-favicon,http-frontpage-login,http-generator,http-git,http-headers,http-hp-ilo-info,http-iis-webdav-vuln,http-internal-ip-disclosure,http-jsonp-detection,http-mcmp,http-ntlm-info,http-passwd,http-php-version,http-qnap-nas-info,http-sap-netweaver-leak,http-security-headers,http-server-header,http-svn-info,http-trane-info,http-userdir-enum,http-vlcstreamer-ls,http-vuln-cve2010-0738,http-vuln-cve2011-3368,http-vuln-cve2014-2126,http-vuln-cve2014-2127,http-vuln-cve2014-2128,http-vuln-cve2014-2129,http-vuln-cve2015-1427,http-vuln-cve2015-1635,http-vuln-cve2017-1001000,http-vuln-misfortune-cookie,http-webdav-scan,http-wordpress-enum,http-wordpress-users,https-redirect,imap-capabilities,imap-ntlm-info,ip-https-discover,membase-http-info,msrpc-enum,mysql-audit,mysql-databases,mysql-empty-password,mysql-info,mysql-users,mysql-variables,mysql-vuln-cve2012-2122,nfs-ls,nfs-showmount,nfs-statfs,pop3-capabilities,pop3-ntlm-info,pptp-version,rdp-ntlm-info,rdp-vuln-ms12-020,realvnc-auth-bypass,riak-http-info,rmi-vuln-classloader,rpc-grind,rpcinfo,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-services,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-print-text,smb-protocols,smb-security-mode,smb-vuln-cve-2017-7494,smb-vuln-ms10-061,smb-vuln-ms17-010,smb2-capabilities,smb2-security-mode,smb2-vuln-uptime,smtp-commands,smtp-ntlm-info,smtp-vuln-cve2011-1720,smtp-vuln-cve2011-1764,ssh-auth-methods,sshv1,ssl-ccs-injection,ssl-cert,ssl-heartbleed,ssl-poodle,sslv2-drown,sslv2,telnet-encryption,telnet-ntlm-info,tftp-enum,unusual-port,vnc-info,vnc-title"
 
-version="1.3.3"
+version="1.4"
 stepbystep="0"
 force="0"
 os=''
@@ -225,11 +228,51 @@ set_env () {
 	sudo chown 2771 .
 	> note_$name.txt
 	mkdir "Scans"
+    mkdir "tmp"
 	cd "Scans"
 	sudo chown -R $userid:$userid $folder
 }
 
+# Array to store function names and PIDs
+declare -A processes
 
+display_table() {
+    local table_start_line=$(tput lines)
+    local table_start_line=$((table_start_line-7))
+    printf "\033[$table_start_line;0H%-20s %-10s %-20s\n" "Function" "PID" "Status"
+    let table_start_line++
+    for function_name in "${!processes[@]}"; do
+        pid=${processes[$function_name]}
+        if kill -0 "$pid" 2> /dev/null; then
+        status=$(cat "$folder/tmp/$function_name.tmp")
+        else
+        status=$(echo -n "Ended " && cat "$folder/tmp/$function_name.tmp")
+        fi
+        printf "\033[$table_start_line;0H%-20s %-10s %-20s\n" "$function_name" "$pid" "$status"
+        let table_start_line++
+    done
+}
+
+# Continuously update and display the table
+activity() {
+    while true; do
+        display_table
+        sleep 1
+        # Check if all processes have finished
+        all_finished=true
+        for pid in "${processes[@]}"; do
+            if kill -0 "$pid" 2> /dev/null; then
+                all_finished=false
+                break
+            fi
+        done
+        if $all_finished; then
+            display_table
+            print_purple "[*] Continuing..."
+            break
+        fi
+    done
+}
 #----------------------------------------------------------------------------------------------------------------------
 ##### NMAP SCANS #####
 #----------------------------------------------------------------------------------------------------------------------
@@ -264,7 +307,7 @@ quick_nmap () {
         read -p "Enter desired ports to quick scan  [$portzdefault]:" portsv
         quickPorts=${portsv:-$portzdefault}
 	fi
-	check=$(nmap -sS $quickPorts -n -Pn $ip | grep "/tcp" )
+ 	check=$(nmap -sS $quickPorts -n -Pn $ip | grep "/tcp")
 	if [[ -z $check ]] ; then
 		print_red "[**] The target doesn't have any open ports... check manually!"
 		cd ..
@@ -272,9 +315,10 @@ quick_nmap () {
 		rm -r $name
 		exit
 	else
+        echo ""
 		echo "PORT   STATE  SERVICE" #> quickNmap_$name.txt
 		echo "$check" #>> quickNmap_$name.txt
-		#cat quickNmap_$name.txt
+		#cat quickNmap_$name.txtf
 		echo " "
 		mkdir nmap
 	fi
@@ -283,21 +327,27 @@ quick_nmap () {
 slow_nmap() {
   ports=$(echo "$check" | grep "/tcp" | cut -d ' ' -f1 | cut -d '/' -f1 | tr '\n' ',' | rev | cut -c 2- | rev)
   print_yellow "[+] Running deep Nmap scan on ports: $ports..."
+
   # Start the nmap scan in the background
   nmap -sS -A -p $ports $ip > nmap/deepNmap_$name.txt &
   slow_nmap_pid=$!
+  
   # Display PID and initial progress message
   printf "Deep Nmap scan PID: $slow_nmap_pid "
+
   # Wait for the nmap process to finish and update progress
   while kill -0 $slow_nmap_pid 2> /dev/null; do
     printf "\b${sp:i++%${#sp}:1}"
     sleep 0.1
   done
+
   # Clear the progress line
   printf "\r\033[K"
+
   # Print the final message
   print_green "[-] Deep Nmap scan done!"
 }
+
 #nmap NSE scan
 nse_nmap () {
 	print_yellow "[+] Running NSE Nmap scan..."
@@ -316,97 +366,104 @@ nse_nmap () {
     # Print the final message
 	print_green "[-] NSE Nmap scan done!"
 }
-#namp UDP scan
-udp_nmap () {
-	print_yellow "[+] Running UDP Nmap scan on $nmap_top_udp common ports..."
-	nmap -sU --top-ports $nmap_top_udp --version-all $ip > nmap/udpNmap_$name.txt
-	print_green "[-] UDP Nmap scan done!"
-}
 
+#nmap UDP scan
+udp_nmap () {
+	print_yellow "[+] Running UDP Nmap scan on $nmap_top_udp common ports..." 
+	nmap -sU --top-ports $nmap_top_udp --version-all $ip > nmap/udpNmap_$name.txt
+    # Print the final message
+	print_green "[-] UDP Nmap scan done for $nmap_top_udp common ports!"
+}
 #----------------------------------------------------------------------------------------------------------------------
 ##### SERVICES SCANS #####
 #----------------------------------------------------------------------------------------------------------------------
 
 #nikto scan, $1 --> protocol, $2 --> port
 nikto_scan () {
-	print_yellow "[+] Running Nikto on port $2..."
+	print_yellow "[+] Running Nikto on port $2..." > $folder/tmp/nikto\ scan.tmp
 	nikto -port $2 -host $hostname -maxtime $nikto_maxtime -ask no 2> /dev/null >> $1/nikto_$2_$name.txt
+    # Print the final message
 	temp=$(cat $1/nikto_$2_$name.txt | grep "+ 0 host(s) tested")
 	if [[ -z $temp ]] ; then
-	print_green "[-] Nikto on port $2 done!"
+	print_green "[-] Nikto on port $2 done!" > $folder/tmp/nikto\ scan.tmp
 	else
 		sudo rm $1/nikto_$2_$name.txt 2>/dev/null
-	print_red "[-] nikto_scan on $2 empty, deleted"
+	print_red "[-] nikto_scan on $2 empty, deleted" > $folder/tmp/nikto\ scan.tmp
 	fi
 }
-#gobuster dir scan, $1 --> protocol, $2 --> port
 
+#gobuster dir scan, $1 --> protocol, $2 --> port
 gobuster_dir () {
-	print_yellow "[+] Running gobuster on port $2..."
+	print_yellow "[+] Running gobuster on port $2..." > $folder/tmp/gobuster_dir\ scan.tmp
 	gobuster dir -u $1://$hostname:$2 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -q -k -d --output $1/gobuster_dir_$2_$name.txt 1>/dev/null
+# Print the final message
 	if ! [ -s $1/gobuster_dir_$2_$name.txt ] ; then
 		rm $1/gobuster_dir_$2_$name.txt
-		print_red "[-] Gobuster dir on port $2 found nothing!"
+		print_red "[-] Gobuster dir on port $2 found nothing!" > $folder/tmp/gobuster_dir\ scan.tmp
 	else
-		print_green "[-] Gobuster dir on port $2 done!"
+		print_green "[-] Gobuster dir on port $2 done!" > $folder/tmp/gobuster_dir\ scan.tmp
 	fi
 }
 #gobuster vhost scan, $1 --> protocol, $2 --> port
 gobuster_vhost () {
 	if test $hostname != $ip ; then
-		print_yellow "[+] Running gobuster vhost on port $2..."
+		print_yellow "[+] Running gobuster vhost on port $2..." > $folder/tmp/gobuster_vhost\ scan.tmp
 		gobuster vhost -u $1://$hostname:$2 -w $gobuster_vhost_wordlist -t $gobuster_threads -q -k --append-domain --output $1/gobuster_subdomains_$2_$name.txt 1>/dev/null
+    gobuster_vhost_pid=$!
+
+    # Print the final message
 		if ! [ -s $1/gobuster_subdomains_$2_$name.txt ] ; then
 			rm $1/gobuster_subdomains_$2_$name.txt
-			print_red "[-] Gobuster vhost on port $2 found nothing!"
+			print_red "[-] Gobuster vhost on port $2 found nothing!" > $folder/tmp/gobuster_vhost\ scan.tmp
 		else
-			print_green "[-] Gobuster vhost on port $2 done!"
+			print_green "[-] Gobuster vhost on port $2 done!" > $folder/tmp/gobuster_vhost\ scan.tmp
 		fi
 	fi
 }
 #hakrawler scan, $1 --> protocol, $2 --> port
 hakrawler_crawl () {
-	print_yellow "[+] Running hakrawler on "$1://$hostname:$2"..."
+	print_yellow "[+] Running hakrawler on "$1://$hostname:$2"..." > $folder/tmp/hakrawler\ scan.tmp
 	echo "$1://$hostname:$2" | hakrawler -insecure -d 0 -u -timeout 5 | sort -u -o $1/hakrawler$2_$name.txt >/dev/null 2>&1
+   # Print the final message
 	if ! [ -s $1/hakrawler$2_$name.txt ] ; then
 		rm $1/hakrawler$2_$name.txt
-		print_red "[-] hakrawler for $1://$hostname:$2 found nothing!"
+		print_red "[-] hakrawler for $1://$hostname:$2 found nothing!" > $folder/tmp/hakrawler\ scan.tmp
 	else
-		print_green "[-] hakrawler on port $2 done!"
+		print_green "[-] hakrawler for $1://$hostname on port $2 done!" > $folder/tmp/hakrawler\ scan.tmp
 	fi
 }
 
 
 #download robots.txt, $1 --> protocol, $2 --> port
 robots_txt () {
-	print_yellow "[+] Searching robots.txt on port $2..."
+	print_yellow "[+] Searching robots.txt on port $2..." > $folder/tmp/robots\ scan.tmp
 	robot_=$(curl -sSik -m 3 "$1://$hostname:$2/robots.txt")
 	if [ $? = 0 ]; then
 	temp=$(echo $robot_ | grep "404")
 		if [[ -z $temp ]] ; then
 			echo "$robot_" >> $1/robotsTxt_$2_$name.txt
-			print_green "[-] Robots.txt on port $2 FOUND!"
+			print_green "[-] Robots.txt on port $2 FOUND!" > $folder/tmp/robots\ scan.tmp
 		else
-			print_red "[-] Robots.txt on port $2 NOT found."
+			print_red "[-] Robots.txt on port $2 NOT found." > $folder/tmp/robots\ scan.tmp
 		fi
 	else
-	print_red "[-] Robots.txt on port $2 NOT found."
+	print_red "[-] Robots.txt on port $2 NOT found." > $folder/tmp/robots\ scan.tmp
 	fi
 }
 
 # whatweb scan, $1 --> protocol, $2 --> port
 whatweb_scan () {
-	print_yellow "[+] Running whatweb on $1://$ip:$2..."
+	print_yellow "[+] Running whatweb on $1://$ip:$2..." > $folder/tmp/whatweb\ scan.tmp
 	whatweb $1://$ip:$2 -a $whatweb_level -v --color never --no-error 2>/dev/null >> $1/whatweb_$2_$name.txt
-	print_green "[-] Whatweb on $1://$ip:$2 done!"
-	print_yellow "[+] Running whatweb on $1://$hostname:$2..."
+	print_green "[-] Whatweb on $1://$ip:$2 done!" > $folder/tmp/whatweb\ scan.tmp
+	print_yellow "[+] Running whatweb on $1://$hostname:$2..." > $folder/tmp/whatweb\ scan.tmp
 	whatweb $1://$hostname:$2 -a $whatweb_level -v --color never --no-error 2>/dev/null >> $1/whatweb_$2_$name.txt
-	print_green "[-] Whatweb on $1://$hostname:$2 done!"
+	print_green "[-] Whatweb on $1://$hostname:$2 done!" > $folder/tmp/whatweb\ scan.tmp
 	if [[ $(du $1/whatweb_$2_$name.txt | awk '{print $1}') > 1 ]] ; then
-		print_green "[+] $1/whatweb_$2_$name.txt has contents!"
+		print_green "[+] Whatweb done & $1/whatweb_$2_$name.txt has contents!" > $folder/tmp/whatweb\ scan.tmp
 	else
 		sudo rm $1/whatweb_$2_$name.txt 2>/dev/null
-		print_red "[-] $1/whatweb_$2_$name.txt is empty, deleted"
+		print_red "[-] Whatweb done & $1/whatweb_$2_$name.txt is empty, deleted" > $folder/tmp/whatweb\ scan.tmp
 	fi
 }
 # enumerate http verbs, $1 --> protocol, $2 --> port
@@ -423,6 +480,7 @@ http_verbs () {
 		concatenation+="$1://$hostname:$2$i "
 	done
 	for i in $redirected ; do
+        sed -i 's/127.0.0.1/'$ip'/g'
 		if [[ ${i:0:4} == "http" ]] ; then
 			concatenation+="$i "
 		else
@@ -498,60 +556,133 @@ check_port_80 () {
 	if [[ $gobusterAnswer == "dir" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
+            processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
+            processes["nikto scan"]="$!"
 			robots_txt "http" $i &
+            processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
+            processes["whatweb scan"]="$!"
 			#gobuster_vhost "http" $i
-			gobuster_dir "http" $i
-			http_verbs "http" $i &
+			gobuster_dir "http" $i &
+            processes["gobuster_dir scan"]="$!"
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            activity
+			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
 	fi
 	if [[ $gobusterAnswer == "vhost" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
+            processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
+            processes["nikto scan"]="$!"
 			robots_txt "http" $i &
+            processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
-			gobuster_vhost "http" $i
+            processes["whatweb scan"]="$!"
+			gobuster_vhost "http" $i &
+            processes["gobuster_vhost scan"]="$!"
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            activity
 			#gobuster_dir "http" $i
-			http_verbs "http" $i &
+			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
 	fi
 	if [[ $gobusterAnswer == "all" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
+            processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
+            processes["nikto scan"]="$!"
 			robots_txt "http" $i &
+            processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
-			gobuster_vhost "http" $i
-			gobuster_dir "http" $i
-			http_verbs "http" $i &
+            processes["whatweb scan"]="$!"
+			gobuster_vhost "http" $i &
+            processes["gobuster_vhost scan"]="$!"
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            activity
+			gobuster_dir "http" $i &
+            processes["gobuster_dir scan"]="$!"
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            activity
+			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
 	fi
 	if [[ $gobusterAnswer == "N" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
+            processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
+            processes["nikto scan"]="$!"
 			robots_txt "http" $i &
+            processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
+            processes["whatweb scan"]="$!"
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            activity
 			#gobuster_vhost "http" $i
 			#gobuster_dir "http" $i
-			http_verbs "http" $i &
+			#http_verbs "http" $i 
 			#add more scans on port 80!
 		done
 	fi
 	if [[ -z $gobusterAnswer ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
+            processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
+            processes["nikto scan"]="$!"
 			robots_txt "http" $i &
+            processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
+            processes["whatweb scan"]="$!"
 			#gobuster_vhost "http" $i
-			gobuster_dir "http" $i
-			http_verbs "http" $i &
+			gobuster_dir "http" $i &
+            processes["gobuster_dir scan"]="$!"
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            echo ""
+            activity
+			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
 	fi
@@ -565,57 +696,90 @@ check_port_443 () {
 		mkdir https
 		if [[ -z $gobusterAnswer ]] ; then
 				hakrawler_crawl "https" "443" &
+                processes["hakrawler scan"]="$!"
 				nikto_scan "https" "443" &
+                processes["nikto scan"]="$!"
 				robots_txt "https" "443" &
+                processes["robots scan"]="$!"
 				whatweb_scan "https" "443" &
+                processes["whatweb scan"]="$!"
 				#gobuster_vhost "https" "443"
-				gobuster_dir "https" "443"
-				http_verbs "https" "443" &
-				hakrawler "https" "443" &
+				gobuster_dir "https" "443" &
+                processes["gobuster_dir scan"]="$!"
+                activity
+				http_verbs "https" "443" 
 				#add more scans on port 443!
 		fi
 		if [[ $gobusterAnswer == "N" ]] ; then
 				hakrawler_crawl "https" "443" &
+                processes["hakrawler scan"]="$!"
 				nikto_scan "https" "443" &
+                processes["nikto scan"]="$!"
 				robots_txt "https" "443" &
+                processes["robots scan"]="$!"
 				whatweb_scan "https" "443" &
+                processes["whatweb scan"]="$!"
 				#gobuster_vhost "https" "443"
 				#gobuster_dir "https" "443"
-				http_verbs "https" "443" &
-				hakrawler "https" "443" &
+				#http_verbs "https" "443" &
 				#add more scans on port 443!
+                activity
 		fi
 		if [[ $gobusterAnswer == "all" ]] ; then
 				hakrawler_crawl "https" "443" &
+                processes["hakrawler scan"]="$!"
 				nikto_scan "https" "443" &
+                processes["nikto scan"]="$!"
 				robots_txt "https" "443" &
+                processes["robots scan"]="$!"
 				whatweb_scan "https" "443" &
-				gobuster_vhost "https" "443"
-				gobuster_dir "https" "443"
-				http_verbs "https" "443" &
-				hakrawler "https" "443" &
+                processes["whatweb scan"]="$!"
+				gobuster_vhost "https" "443"&
+                processes["gobuster_vhost scan"]="$!"
+                activity
+				gobuster_dir "https" "443" &
+                processes["gobuster_dir scan"]="$!"
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                activity
+				http_verbs "https" "443" 
 				#add more scans on port 443!
 		fi
 		if [[ $gobusterAnswer == "vhost" ]] ; then
 				hakrawler_crawl "https" "443" &
+                processes["hakrawler scan"]="$!"
 				nikto_scan "https" "443" &
+                processes["nikto scan"]="$!"
 				robots_txt "https" "443" &
+                processes["robots scan"]="$!"
 				whatweb_scan "https" "443" &
-				gobuster_vhost "https" "443"
+                processes["whatweb scan"]="$!"
+				gobuster_vhost "https" "443" &
+                processes["gobuster_vhost scan"]="$!"
 				#gobuster_dir "https" "443"
-				http_verbs "https" "443" &
-				hakrawler "https" "443" &
+                activity
+				http_verbs "https" "443" 
 				#add more scans on port 443!
 		fi
 		if [[ $gobusterAnswer == "dir" ]] ; then
 				hakrawler_crawl "https" "443" &
+                processes["hakrawler scan"]="$!"
 				nikto_scan "https" "443" &
+                processes["nikto scan"]="$!"
 				robots_txt "https" "443" &
+                processes["robots scan"]="$!"
 				whatweb_scan "https" "443" &
+                processes["whatweb scan"]="$!"
 				#gobuster_vhost "https" "443"
-				gobuster_dir "https" "443"
-				http_verbs "https" "443" &
-				hakrawler "https" "443" &
+				gobuster_dir "https" "443" &
+                processes["gobuster_dir scan"]="$!"
+                activity
+				http_verbs "https" "443" 
 				#add more scans on port 443!
 		fi
 	fi
@@ -636,11 +800,20 @@ all_scans() {
 		echo ""
 		slow_nmap
 		nse_nmap
-		udp_nmap &
-		check_port_80
+        check_smb 
+		clone_ftp 
+		echo ""
+		echo ""
+		echo ""
+		echo ""
+		echo ""
+		echo ""
+		echo ""
 		check_port_443
-		check_smb
-		clone_ftp
+        wait
+		check_port_80 
+        udp_nmap &
+        sleep 1
 		echo "[+] All scans launched..."
 		#add more scans!
 	else
@@ -665,5 +838,6 @@ check_input $@ #multiple check on input
 set_env #setting working envirnoment
 all_scans #do all scans
 wait #wait all children
+rm -R $folder/tmp
 sudo chown -R $userid:$userid $folder
-print_purple "All tasks complete!"
+print_purple "[*] All tasks complete!"
