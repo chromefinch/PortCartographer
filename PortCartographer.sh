@@ -62,7 +62,7 @@ sp='|/-\\'
 # NSE's scripts run by nmap
 nse="dns-nsec-enum,dns-nsec3-enum,dns-nsid,dns-recursion,dns-service-discovery,dns-srv-enum,fcrdns,ftp-anon,ftp-bounce,ftp-libopie,ftp-syst,ftp-vuln-cve2010-4221,http-apache-negotiation,http-apache-server-status,http-aspnet-debug,http-backup-finder,http-bigip-cookie,http-cakephp-version,http-config-backup,http-cookie-flags,http-devframework,http-exif-spider,http-favicon,http-frontpage-login,http-generator,http-git,http-headers,http-hp-ilo-info,http-iis-webdav-vuln,http-internal-ip-disclosure,http-jsonp-detection,http-mcmp,http-ntlm-info,http-passwd,http-php-version,http-qnap-nas-info,http-sap-netweaver-leak,http-security-headers,http-server-header,http-svn-info,http-trane-info,http-userdir-enum,http-vlcstreamer-ls,http-vuln-cve2010-0738,http-vuln-cve2011-3368,http-vuln-cve2014-2126,http-vuln-cve2014-2127,http-vuln-cve2014-2128,http-vuln-cve2014-2129,http-vuln-cve2015-1427,http-vuln-cve2015-1635,http-vuln-cve2017-1001000,http-vuln-misfortune-cookie,http-webdav-scan,http-wordpress-enum,http-wordpress-users,https-redirect,imap-capabilities,imap-ntlm-info,ip-https-discover,membase-http-info,msrpc-enum,mysql-audit,mysql-databases,mysql-empty-password,mysql-info,mysql-users,mysql-variables,mysql-vuln-cve2012-2122,nfs-ls,nfs-showmount,nfs-statfs,pop3-capabilities,pop3-ntlm-info,pptp-version,rdp-ntlm-info,rdp-vuln-ms12-020,realvnc-auth-bypass,riak-http-info,rmi-vuln-classloader,rpc-grind,rpcinfo,smb-enum-domains,smb-enum-groups,smb-enum-processes,smb-enum-services,smb-enum-sessions,smb-enum-shares,smb-enum-users,smb-mbenum,smb-os-discovery,smb-print-text,smb-protocols,smb-security-mode,smb-vuln-cve-2017-7494,smb-vuln-ms10-061,smb-vuln-ms17-010,smb2-capabilities,smb2-security-mode,smb2-vuln-uptime,smtp-commands,smtp-ntlm-info,smtp-vuln-cve2011-1720,smtp-vuln-cve2011-1764,ssh-auth-methods,sshv1,ssl-ccs-injection,ssl-cert,ssl-heartbleed,ssl-poodle,sslv2-drown,sslv2,telnet-encryption,telnet-ntlm-info,tftp-enum,unusual-port,vnc-info,vnc-title"
 
-version="1.4.1"
+version="1.4.2"
 stepbystep="0"
 force="0"
 os=''
@@ -261,6 +261,7 @@ activity() {
         # Check if all processes have finished
         all_finished=true
         for pid in "${processes[@]}"; do
+            echo "PID $pid: ${processes[$pid]}" >> $folder/tmp/debug.log
             if kill -0 "$pid" 2> /dev/null; then
                 all_finished=false
                 break
@@ -268,6 +269,7 @@ activity() {
         done
         if $all_finished; then
             display_table
+            unset processes[*]
             print_purple "[*] Continuing..."
             break
         fi
@@ -395,7 +397,7 @@ nikto_scan () {
 #gobuster dir scan, $1 --> protocol, $2 --> port
 gobuster_dir () {
 	print_yellow "[+] Running gobuster on port $2..." > $folder/tmp/gobuster_dir\ scan.tmp
-	gobuster dir -u $1://$hostname:$2 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -q -k -d --output $1/gobuster_dir_$2_$name.txt 1>/dev/null
+	gobuster dir -u $1://$hostname:$2 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -q -k -d --output $1/gobuster_dir_$2_$name.txt >/dev/null 2>&1
 # Print the final message
 	if ! [ -s $1/gobuster_dir_$2_$name.txt ] ; then
 		rm $1/gobuster_dir_$2_$name.txt
@@ -408,7 +410,7 @@ gobuster_dir () {
 gobuster_vhost () {
 	if test $hostname != $ip ; then
 		print_yellow "[+] Running gobuster vhost on port $2..." > $folder/tmp/gobuster_vhost\ scan.tmp
-		gobuster vhost -u $1://$hostname:$2 -w $gobuster_vhost_wordlist -t $gobuster_threads -q -k --append-domain --output $1/gobuster_subdomains_$2_$name.txt 1>/dev/null
+		gobuster vhost -u $1://$hostname:$2 -w $gobuster_vhost_wordlist -t $gobuster_threads -q -k --append-domain --output $1/gobuster_subdomains_$2_$name.txt >/dev/null 2>&1
     gobuster_vhost_pid=$!
 
     # Print the final message
@@ -437,7 +439,7 @@ hakrawler_crawl () {
 #download robots.txt, $1 --> protocol, $2 --> port
 robots_txt () {
 	print_yellow "[+] Searching robots.txt on port $2..." > $folder/tmp/robots\ scan.tmp
-	robot_=$(curl -sSik -m 3 "$1://$hostname:$2/robots.txt")
+	robot_=$(curl -sSik -m 3 "$1://$hostname:$2/robots.txt" >/dev/null 2>&1) 
 	if [ $? = 0 ]; then
 	temp=$(echo $robot_ | grep "404")
 		if [[ -z $temp ]] ; then
@@ -469,36 +471,36 @@ whatweb_scan () {
 # enumerate http verbs, $1 --> protocol, $2 --> port
 http_verbs () {
 	if ! [ -e $1/gobuster_dir_$2_$name.txt ] ; then
-		exit
-	fi
+		print_red "[-] $1/gobuster_dir_$2_$name.txt is blank"
+	else
+        print_yellow "[+] Enumerating http-verbs from gobuster results on port $2..."
+        not_redirected=$(cat $1/gobuster_dir_$2_$name.txt | grep -E '\(Status: 2|\(Status: 401' | cut -d ' ' -f1)
+        redirected=$(cat $1/gobuster_dir_$2_$name.txt | grep "(Status: 3" | awk -F' ' '{print $7}' | cut -d ']' -f 1)
+        concatenation=""
+        for i in $not_redirected ; do
+            concatenation+="$1://$hostname:$2$i "
+        done
+        for i in $redirected ; do
+            sed -i 's/127.0.0.1/'$ip'/g'
+            if [[ ${i:0:4} == "http" ]] ; then
+                concatenation+="$i "
+            else
+                concatenation+="$1://$hostname:$2$i "
+            fi
 
-	print_yellow "[+] Enumerating http-verbs from gobuster results on port $2..."
-	not_redirected=$(cat $1/gobuster_dir_$2_$name.txt | grep -E '\(Status: 2|\(Status: 401' | cut -d ' ' -f1)
-	redirected=$(cat $1/gobuster_dir_$2_$name.txt | grep "(Status: 3" | awk -F' ' '{print $7}' | cut -d ']' -f 1)
-	concatenation=""
-	for i in $not_redirected ; do
-		concatenation+="$1://$hostname:$2$i "
-	done
-	for i in $redirected ; do
-        sed -i 's/127.0.0.1/'$ip'/g'
-		if [[ ${i:0:4} == "http" ]] ; then
-			concatenation+="$i "
-		else
-			concatenation+="$1://$hostname:$2$i "
-		fi
-
-	done
-	concatenation=$(echo $concatenation | xargs -n1 |sort -u)
-	for i in $concatenation; do
-		verb_result=$(curl -sSikI -X OPTIONS "$i" | grep -w -E 'HTTP|Allow:' | sed "s|HTTP/1.1 404 Not Found||g")
-		test=${#verb_result}
-		if [[ $test > "1" ]] ; then
-			echo $i >> $1/$1-verbs.txt
-			echo $verb_result >> $1/$1-verbs.txt
-			echo "---" >> $1/$1-verbs.txt
-		fi
-	done
-	print_green "[-] Enumeration http-verbs on port $2 done!"
+        done
+        concatenation=$(echo $concatenation | xargs -n1 |sort -u)
+        for i in $concatenation; do
+            verb_result=$(curl -sSikI -X OPTIONS "$i" | grep -w -E 'HTTP|Allow:' | sed "s|HTTP/1.1 404 Not Found||g")
+            test=${#verb_result}
+            if [[ $test > "1" ]] ; then
+                echo $i >> $1/$1-verbs.txt
+                echo $verb_result >> $1/$1-verbs.txt
+                echo "---" >> $1/$1-verbs.txt
+            fi
+        done
+        print_green "[-] Enumeration http-verbs on port $2 done!"
+    fi
 }
 #run enum4linux if ports 139,389 or 445 are open
 check_smb() {
@@ -574,6 +576,7 @@ check_port_80 () {
             echo ""
             echo ""
             activity
+            unset processes[*]
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
@@ -598,6 +601,7 @@ check_port_80 () {
             echo ""
             echo ""
             activity
+            unset processes[*]
 			#gobuster_dir "http" $i
 			http_verbs "http" $i 
 			#add more scans on port 80!
@@ -623,6 +627,7 @@ check_port_80 () {
             echo ""
             echo ""
             activity
+            unset processes[*]
 			gobuster_dir "http" $i &
             processes["gobuster_dir scan"]="$!"
             echo ""
@@ -633,6 +638,7 @@ check_port_80 () {
             echo ""
             echo ""
             activity
+            unset processes[*]
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
@@ -655,6 +661,7 @@ check_port_80 () {
             echo ""
             echo ""
             activity
+            unset processes[*]
 			#gobuster_vhost "http" $i
 			#gobuster_dir "http" $i
 			#http_verbs "http" $i 
@@ -682,6 +689,7 @@ check_port_80 () {
             echo ""
             echo ""
             activity
+            unset processes[*]
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
