@@ -706,6 +706,13 @@ check_port_443 () {
 				#gobuster_vhost "https" "443"
 				gobuster_dir "https" "443" &
                 processes["gobuster_dir scan"]="$!"
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
                 activity
 				http_verbs "https" "443" 
 				#add more scans on port 443!
@@ -723,6 +730,13 @@ check_port_443 () {
 				#gobuster_dir "https" "443"
 				#http_verbs "https" "443" &
 				#add more scans on port 443!
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
                 activity
 		fi
 		if [[ $gobusterAnswer == "all" ]] ; then
@@ -736,6 +750,13 @@ check_port_443 () {
                 processes["whatweb scan"]="$!"
 				gobuster_vhost "https" "443"&
                 processes["gobuster_vhost scan"]="$!"
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
                 activity
 				gobuster_dir "https" "443" &
                 processes["gobuster_dir scan"]="$!"
@@ -762,6 +783,13 @@ check_port_443 () {
 				gobuster_vhost "https" "443" &
                 processes["gobuster_vhost scan"]="$!"
 				#gobuster_dir "https" "443"
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
                 activity
 				http_verbs "https" "443" 
 				#add more scans on port 443!
@@ -778,6 +806,13 @@ check_port_443 () {
 				#gobuster_vhost "https" "443"
 				gobuster_dir "https" "443" &
                 processes["gobuster_dir scan"]="$!"
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
+                echo ""
                 activity
 				http_verbs "https" "443" 
 				#add more scans on port 443!
@@ -802,13 +837,6 @@ all_scans() {
 		nse_nmap
         check_smb 
 		clone_ftp 
-		echo ""
-		echo ""
-		echo ""
-		echo ""
-		echo ""
-		echo ""
-		echo ""
 		check_port_443
         wait
 		check_port_80 
