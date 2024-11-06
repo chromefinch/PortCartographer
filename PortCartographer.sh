@@ -480,8 +480,8 @@ http_verbs () {
         for i in $not_redirected ; do
             concatenation+="$1://$hostname:$2$i "
         done
-        for i in $redirected ; do
-            sed -i 's/127.0.0.1/'$hostname'/g'
+        for r in $redirected ; do
+           i=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/') 
             if [[ ${i:0:4} == "http" ]] ; then
                 concatenation+="$i "
             else
