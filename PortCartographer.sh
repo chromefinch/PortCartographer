@@ -581,7 +581,7 @@ check_port_80 () {
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
-  		print_green "[-] Web scans complete"
+  		print_green "[-] http web scans complete"
 	fi
 	if [[ $gobusterAnswer == "vhost" ]] ; then
 		for i in ${portz[@]}; do
@@ -608,7 +608,7 @@ check_port_80 () {
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
-  		print_green "[-] Web scans complete"
+  		print_green "[-] http web scans complete"
 	fi
 	if [[ $gobusterAnswer == "all" ]] ; then
 		for i in ${portz[@]}; do
@@ -645,7 +645,7 @@ check_port_80 () {
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
-  		print_green "[-] Web scans complete"
+  		print_green "[-] http web scans complete"
 	fi
 	if [[ $gobusterAnswer == "N" ]] ; then
 		for i in ${portz[@]}; do
@@ -671,7 +671,7 @@ check_port_80 () {
 			#http_verbs "http" $i 
 			#add more scans on port 80!
 		done
-  		print_green "[-] Web scans complete"
+  		print_green "[-] http web scans complete"
 	fi
 	if [[ -z $gobusterAnswer ]] ; then
 		for i in ${portz[@]}; do
@@ -698,7 +698,7 @@ check_port_80 () {
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
-  		print_green "[-] Web scans complete"
+  		print_green "[-] http web scans complete"
 	fi
 	fi
 }
@@ -708,7 +708,7 @@ check_port_443 () {
 	temp_443=$(echo "$check" | grep -w "443/tcp")
 	if [[ -n $temp_443 ]] ; then
 		mkdir https
-  		print_yellow "[+] Starting web scans..."
+  		print_yellow "[+] Starting https web scans..."
 		if [[ -z $gobusterAnswer ]] ; then
 			hakrawler_crawl "https" "443" &
 			processes["hakrawler scan"]="$!"
@@ -731,7 +731,7 @@ check_port_443 () {
 			activity
 			http_verbs "https" "443" 
 			#add more scans on port 443!
-   			print_green "[-] Web scans complete"
+   			print_green "[-] https web scans complete"
 		fi
 		if [[ $gobusterAnswer == "N" ]] ; then
 			hakrawler_crawl "https" "443" &
@@ -754,7 +754,7 @@ check_port_443 () {
 			echo ""
 			echo ""
 			activity
-   			print_green "[-] Web scans complete"
+   			print_green "[-] https web scans complete"
 		fi
 		if [[ $gobusterAnswer == "all" ]] ; then
 			hakrawler_crawl "https" "443" &
@@ -787,7 +787,7 @@ check_port_443 () {
 	                activity
 			http_verbs "https" "443" 
 			#add more scans on port 443!
-   			print_green "[-] Web scans complete"
+   			print_green "[-] https web scans complete"
 		fi
 		if [[ $gobusterAnswer == "vhost" ]] ; then
 			hakrawler_crawl "https" "443" &
@@ -811,7 +811,7 @@ check_port_443 () {
 	                activity
 			http_verbs "https" "443" 
 			#add more scans on port 443!
-   			print_green "[-] Web scans complete"
+   			print_green "[-] https web scans complete"
 		fi
 		if [[ $gobusterAnswer == "dir" ]] ; then
 			hakrawler_crawl "https" "443" &
@@ -835,7 +835,7 @@ check_port_443 () {
 	                activity
 			http_verbs "https" "443" 
 			#add more scans on port 443!
-   			print_green "[-] Web scans complete"
+   			print_green "[-] https web scans complete"
 		fi
 	fi
 }
