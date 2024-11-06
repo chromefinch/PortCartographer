@@ -75,11 +75,11 @@ folder=$(pwd)
 #usage helper
 usage () {
 	echo ""
-	echo "Usage:    ./PortCartographer.sh [-h] [-s] [-f] -w [WORDLIST] -H [hostname] -o [Windows|Linux] target_ip target_name"
+	echo "Usage:    ./PortCartographer.sh [-h] [-s] [-f] -w [wordlist] -H [hostname] -o [Windows|Linux] target_ip target_name"
 	echo ""
 	echo "          target_ip         IP address of the target"
 	echo "          target_name       Target name, a directory will be created using this path"
-	echo "Options:  -w wordlist       Specify a wordlist for gobuster. (The default one is big.txt from dirb's lists)"
+	echo "Options:  -w wordlist       Specify a wordlist (absolute path) for gobuster. (The default one is big.txt from dirb's lists)"
 	echo "          -H hostname       Specify hostname (fqdn). (add it to /etc/hosts)"
 	echo "          -h                Show this helper"
 	echo "          -s                Step-by-step: nmap scans are done first, then service port scans not in parallel, one by one."
