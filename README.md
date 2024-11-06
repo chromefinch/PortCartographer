@@ -15,7 +15,7 @@ All these scans are saved into files, quick-scan's result is printed as console'
 After the first scan, the remaining are done in parallel by default; otherwise you can specify a step-by-step scan, where they will be performed sequentially.
 
 
-## New Version Update (26/04/2024)
+## New Version Update (11/06/2024)
 New version of the tool released with new banner, modules, configurations and expanded code.
 Renamed to PortCartographer as fairscan did not want my insane edits/mods. 
 
