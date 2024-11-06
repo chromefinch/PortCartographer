@@ -558,25 +558,25 @@ check_port_80 () {
 	if [[ $gobusterAnswer == "dir" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
-            processes["hakrawler scan"]="$!"
+			processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
-            processes["nikto scan"]="$!"
+			processes["nikto scan"]="$!"
 			robots_txt "http" $i &
-            processes["robots scan"]="$!"
+			processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
-            processes["whatweb scan"]="$!"
+			processes["whatweb scan"]="$!"
 			#gobuster_vhost "http" $i
 			gobuster_dir "http" $i &
-            processes["gobuster_dir scan"]="$!"
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            activity
-            unset processes[*]
+			processes["gobuster_dir scan"]="$!"
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			activity
+			unset processes[*]
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
@@ -584,24 +584,24 @@ check_port_80 () {
 	if [[ $gobusterAnswer == "vhost" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
-            processes["hakrawler scan"]="$!"
+			processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
-            processes["nikto scan"]="$!"
+			processes["nikto scan"]="$!"
 			robots_txt "http" $i &
-            processes["robots scan"]="$!"
+			processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
-            processes["whatweb scan"]="$!"
+			processes["whatweb scan"]="$!"
 			gobuster_vhost "http" $i &
-            processes["gobuster_vhost scan"]="$!"
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            activity
-            unset processes[*]
+			processes["gobuster_vhost scan"]="$!"
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			activity
+			unset processes[*]
 			#gobuster_dir "http" $i
 			http_verbs "http" $i 
 			#add more scans on port 80!
@@ -610,35 +610,35 @@ check_port_80 () {
 	if [[ $gobusterAnswer == "all" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
-            processes["hakrawler scan"]="$!"
+			processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
-            processes["nikto scan"]="$!"
+			processes["nikto scan"]="$!"
 			robots_txt "http" $i &
-            processes["robots scan"]="$!"
+			processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
-            processes["whatweb scan"]="$!"
+			processes["whatweb scan"]="$!"
 			gobuster_vhost "http" $i &
-            processes["gobuster_vhost scan"]="$!"
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            activity
-            unset processes[*]
+			processes["gobuster_vhost scan"]="$!"
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			activity
+			unset processes[*]
 			gobuster_dir "http" $i &
-            processes["gobuster_dir scan"]="$!"
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            activity
-            unset processes[*]
+			processes["gobuster_dir scan"]="$!"
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			activity
+			unset processes[*]
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
@@ -646,22 +646,22 @@ check_port_80 () {
 	if [[ $gobusterAnswer == "N" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
-            processes["hakrawler scan"]="$!"
+			processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
-            processes["nikto scan"]="$!"
+			processes["nikto scan"]="$!"
 			robots_txt "http" $i &
-            processes["robots scan"]="$!"
+			processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
-            processes["whatweb scan"]="$!"
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            activity
-            unset processes[*]
+			processes["whatweb scan"]="$!"
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			activity
+			unset processes[*]
 			#gobuster_vhost "http" $i
 			#gobuster_dir "http" $i
 			#http_verbs "http" $i 
@@ -671,25 +671,25 @@ check_port_80 () {
 	if [[ -z $gobusterAnswer ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
-            processes["hakrawler scan"]="$!"
+			processes["hakrawler scan"]="$!"
 			nikto_scan "http" $i &
-            processes["nikto scan"]="$!"
+			processes["nikto scan"]="$!"
 			robots_txt "http" $i &
-            processes["robots scan"]="$!"
+			processes["robots scan"]="$!"
 			whatweb_scan "http" $i &
-            processes["whatweb scan"]="$!"
+			processes["whatweb scan"]="$!"
 			#gobuster_vhost "http" $i
 			gobuster_dir "http" $i &
-            processes["gobuster_dir scan"]="$!"
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            echo ""
-            activity
-            unset processes[*]
+			processes["gobuster_dir scan"]="$!"
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			activity
+			unset processes[*]
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
@@ -703,127 +703,127 @@ check_port_443 () {
 	if [[ -n $temp_443 ]] ; then
 		mkdir https
 		if [[ -z $gobusterAnswer ]] ; then
-				hakrawler_crawl "https" "443" &
-                processes["hakrawler scan"]="$!"
-				nikto_scan "https" "443" &
-                processes["nikto scan"]="$!"
-				robots_txt "https" "443" &
-                processes["robots scan"]="$!"
-				whatweb_scan "https" "443" &
-                processes["whatweb scan"]="$!"
-				#gobuster_vhost "https" "443"
-				gobuster_dir "https" "443" &
-                processes["gobuster_dir scan"]="$!"
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                activity
-				http_verbs "https" "443" 
-				#add more scans on port 443!
+			hakrawler_crawl "https" "443" &
+			processes["hakrawler scan"]="$!"
+			nikto_scan "https" "443" &
+			processes["nikto scan"]="$!"
+			robots_txt "https" "443" &
+			processes["robots scan"]="$!"
+			whatweb_scan "https" "443" &
+			processes["whatweb scan"]="$!"
+			#gobuster_vhost "https" "443"
+			gobuster_dir "https" "443" &
+			processes["gobuster_dir scan"]="$!"
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			activity
+			http_verbs "https" "443" 
+			#add more scans on port 443!
 		fi
 		if [[ $gobusterAnswer == "N" ]] ; then
-				hakrawler_crawl "https" "443" &
-                processes["hakrawler scan"]="$!"
-				nikto_scan "https" "443" &
-                processes["nikto scan"]="$!"
-				robots_txt "https" "443" &
-                processes["robots scan"]="$!"
-				whatweb_scan "https" "443" &
-                processes["whatweb scan"]="$!"
-				#gobuster_vhost "https" "443"
-				#gobuster_dir "https" "443"
-				#http_verbs "https" "443" &
-				#add more scans on port 443!
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                activity
+			hakrawler_crawl "https" "443" &
+			processes["hakrawler scan"]="$!"
+			nikto_scan "https" "443" &
+			processes["nikto scan"]="$!"
+			robots_txt "https" "443" &
+			processes["robots scan"]="$!"
+			whatweb_scan "https" "443" &
+			processes["whatweb scan"]="$!"
+			#gobuster_vhost "https" "443"
+			#gobuster_dir "https" "443"
+			#http_verbs "https" "443" &
+			#add more scans on port 443!
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			echo ""
+			activity
 		fi
 		if [[ $gobusterAnswer == "all" ]] ; then
-				hakrawler_crawl "https" "443" &
-                processes["hakrawler scan"]="$!"
-				nikto_scan "https" "443" &
-                processes["nikto scan"]="$!"
-				robots_txt "https" "443" &
-                processes["robots scan"]="$!"
-				whatweb_scan "https" "443" &
-                processes["whatweb scan"]="$!"
-				gobuster_vhost "https" "443"&
-                processes["gobuster_vhost scan"]="$!"
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                activity
-				gobuster_dir "https" "443" &
-                processes["gobuster_dir scan"]="$!"
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                activity
-				http_verbs "https" "443" 
-				#add more scans on port 443!
+			hakrawler_crawl "https" "443" &
+			processes["hakrawler scan"]="$!"
+			nikto_scan "https" "443" &
+			processes["nikto scan"]="$!"
+			robots_txt "https" "443" &
+			processes["robots scan"]="$!"
+			whatweb_scan "https" "443" &
+			processes["whatweb scan"]="$!"
+			gobuster_vhost "https" "443"&
+			processes["gobuster_vhost scan"]="$!"
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                activity
+			gobuster_dir "https" "443" &
+	                processes["gobuster_dir scan"]="$!"
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                activity
+			http_verbs "https" "443" 
+			#add more scans on port 443!
 		fi
 		if [[ $gobusterAnswer == "vhost" ]] ; then
-				hakrawler_crawl "https" "443" &
-                processes["hakrawler scan"]="$!"
-				nikto_scan "https" "443" &
-                processes["nikto scan"]="$!"
-				robots_txt "https" "443" &
-                processes["robots scan"]="$!"
-				whatweb_scan "https" "443" &
-                processes["whatweb scan"]="$!"
-				gobuster_vhost "https" "443" &
-                processes["gobuster_vhost scan"]="$!"
-				#gobuster_dir "https" "443"
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                activity
-				http_verbs "https" "443" 
-				#add more scans on port 443!
+			hakrawler_crawl "https" "443" &
+	                processes["hakrawler scan"]="$!"
+			nikto_scan "https" "443" &
+	                processes["nikto scan"]="$!"
+			robots_txt "https" "443" &
+	                processes["robots scan"]="$!"
+			whatweb_scan "https" "443" &
+	                processes["whatweb scan"]="$!"
+			gobuster_vhost "https" "443" &
+	                processes["gobuster_vhost scan"]="$!"
+			#gobuster_dir "https" "443"
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                activity
+			http_verbs "https" "443" 
+			#add more scans on port 443!
 		fi
 		if [[ $gobusterAnswer == "dir" ]] ; then
-				hakrawler_crawl "https" "443" &
-                processes["hakrawler scan"]="$!"
-				nikto_scan "https" "443" &
-                processes["nikto scan"]="$!"
-				robots_txt "https" "443" &
-                processes["robots scan"]="$!"
-				whatweb_scan "https" "443" &
-                processes["whatweb scan"]="$!"
-				#gobuster_vhost "https" "443"
-				gobuster_dir "https" "443" &
-                processes["gobuster_dir scan"]="$!"
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                echo ""
-                activity
-				http_verbs "https" "443" 
-				#add more scans on port 443!
+			hakrawler_crawl "https" "443" &
+	                processes["hakrawler scan"]="$!"
+			nikto_scan "https" "443" &
+	                processes["nikto scan"]="$!"
+			robots_txt "https" "443" &
+	                processes["robots scan"]="$!"
+			whatweb_scan "https" "443" &
+	                processes["whatweb scan"]="$!"
+			#gobuster_vhost "https" "443"
+			gobuster_dir "https" "443" &
+	                processes["gobuster_dir scan"]="$!"
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                echo ""
+	                activity
+			http_verbs "https" "443" 
+			#add more scans on port 443!
 		fi
 	fi
 }
@@ -843,13 +843,13 @@ all_scans() {
 		echo ""
 		slow_nmap
 		nse_nmap
-        check_smb 
+        	check_smb 
 		clone_ftp 
 		check_port_443
-        wait
+  		wait
 		check_port_80 
-        udp_nmap &
-        sleep 1
+        	udp_nmap &
+        	sleep 1
 		echo "[+] All scans launched..."
 		#add more scans!
 	else
