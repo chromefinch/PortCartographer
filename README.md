@@ -49,6 +49,7 @@ $ ./PortCartographer.sh -h
 ping
 nmap
 gobuster
+feroxbuster
 nikto
 curl
 enum4linux
