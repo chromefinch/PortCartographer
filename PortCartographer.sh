@@ -397,7 +397,7 @@ nikto_scan () {
 #feroxbuster scan, $1 --> protocol, $2 --> port
 feroxbuster_dir () {
 	print_yellow "[+] Running feroxbuster on port $2..." > $folder/tmp/feroxbuster_dir\ scan.tmp
-	feroxbuster -u $1://$hostname:$2 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q > $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
+	feroxbuster -u $1://$hostname:$2 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
 	sed -i '/Auto-filtering found 404-like response and created new filter/d' $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
 	sed -i '/^$/d' $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
 	if grep -q 'skipping...$' $1/feroxbuster_dir_$2_$name.txt; then
@@ -421,7 +421,7 @@ feroxbuster_redir () {
 	done
 	echo "$fixed" > $folder/tmp/temp.txt 2> /dev/null
 	sort -u $folder/tmp/temp.txt > $folder/tmp/redirects.txt
-	cat $folder/tmp/redirects.txt | feroxbuster --stdin --parallel 10 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$name.txt 2> /dev/null&
+	cat $folder/tmp/redirects.txt | feroxbuster --stdin --parallel 10 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$name.txt 2> /dev/null&
     feroxbuster_redir_pid=$!
     # Display PID and initial progress message
     printf "feroxbuster redirect scan: $feroxbuster_redir_pid "
