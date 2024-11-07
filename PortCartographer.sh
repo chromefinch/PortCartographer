@@ -599,6 +599,7 @@ check_port_80 () {
 			echo ""
 			activity
 			unset processes[*]
+			feroxbuster_redir "http" $i
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
@@ -663,6 +664,7 @@ check_port_80 () {
 			echo ""
 			activity
 			unset processes[*]
+			feroxbuster_redir "http" $i
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
@@ -716,6 +718,7 @@ check_port_80 () {
 			echo ""
 			activity
 			unset processes[*]
+			feroxbuster_redir "http" $i
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
@@ -750,6 +753,7 @@ check_port_443 () {
 			echo ""
 			echo ""
 			activity
+			feroxbuster_redir "https" "443"
 			http_verbs "https" "443" 
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
@@ -806,6 +810,7 @@ check_port_443 () {
 	                echo ""
 	                echo ""
 	                activity
+			feroxbuster_redir "https" "443"
 			http_verbs "https" "443" 
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
@@ -830,6 +835,7 @@ check_port_443 () {
 	                echo ""
 	                echo ""
 	                activity
+			feroxbuster_redir "https" "443"
 			http_verbs "https" "443" 
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
@@ -854,6 +860,7 @@ check_port_443 () {
 	                echo ""
 	                echo ""
 	                activity
+			feroxbuster_redir "https" "443"
 			http_verbs "https" "443" 
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
