@@ -23,21 +23,21 @@ nikto_maxtime="3m"
 ### GOBUSTER
 ## Linux
 # directory bruteforce wordlist for detected linux machines
-gobuster_dir_linux_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words.txt"
+feroxbuster_dir_linux_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words.txt"
 # directory bruteforce extensions for detected linux machines
-gobuster_dir_linux_extensions="php,html,txt,pdf"
+feroxbuster_dir_linux_extensions="php,html,txt,pdf"
 
 ## Windows
 # directory bruteforce wordlist for detected windows machines
-gobuster_dir_windows_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words-lowercase.txt"
+feroxbuster_dir_windows_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words-lowercase.txt"
 # directory bruteforce extensions for detected windows machines
-gobuster_dir_windows_extensions="php,html,asp,aspx,jsp,pdf,wsdl"
+feroxbuster_dir_windows_extensions="php,html,asp,aspx,jsp,pdf,wsdl"
 
 ## Unknown OS
 # directory bruteforce wordlist for NOT detected OS
-gobuster_dir_unknown_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words.txt"
+feroxbuster_dir_unknown_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words.txt"
 # directory bruteforce extensions for NOT detected OS
-gobuster_dir_unknown_extensions="php,html,txt,asp,aspx,jsp,pdf,wsdl,asmx"
+feroxbuster_dir_unknown_extensions="php,html,txt,asp,aspx,jsp,pdf,wsdl,asmx"
 
 ## All OSs
 # vhost bruteforce wordlist
@@ -169,16 +169,16 @@ check_dir () {
 }
 #check if the wordlists specified exist
 check_w () {
-	if [[ -n "$gobuster_dir_linux_wordlist" ]] && ! [[ -f "$gobuster_dir_linux_wordlist" ]] ; then
-		print_red "[**] Wordlist $gobuster_dir_linux_wordlist doesn't exist, fix the configurations! " 1>&2
+	if [[ -n "$feroxbuster_dir_linux_wordlist" ]] && ! [[ -f "$feroxbuster_dir_linux_wordlist" ]] ; then
+		print_red "[**] Wordlist $feroxbuster_dir_linux_wordlist doesn't exist, fix the configurations! " 1>&2
     		exit 1
 	fi
-	if [[ -n "$gobuster_dir_windows_wordlist" ]] && ! [[ -f "$gobuster_dir_windows_wordlist" ]] ; then
-		print_red "[**] Wordlist $gobuster_dir_windows_wordlist doesn't exist, fix the configurations! " 1>&2
+	if [[ -n "$feroxbuster_dir_windows_wordlist" ]] && ! [[ -f "$feroxbuster_dir_windows_wordlist" ]] ; then
+		print_red "[**] Wordlist $feroxbuster_dir_windows_wordlist doesn't exist, fix the configurations! " 1>&2
     		exit 1
 	fi
-	if [[ -n "$gobuster_dir_unknown_wordlist" ]] && ! [[ -f "$gobuster_dir_unknown_wordlist" ]] ; then
-		print_red "[**] Wordlist $gobuster_dir_unknown_wordlist doesn't exist, fix the configurations! " 1>&2
+	if [[ -n "$feroxbuster_dir_unknown_wordlist" ]] && ! [[ -f "$feroxbuster_dir_unknown_wordlist" ]] ; then
+		print_red "[**] Wordlist $feroxbuster_dir_unknown_wordlist doesn't exist, fix the configurations! " 1>&2
     		exit 1
 	fi
 	if [[ -n "$gobuster_vhost_wordlist" ]] && ! [[ -f "$gobuster_vhost_wordlist" ]] ; then
@@ -286,14 +286,14 @@ quick_nmap () {
 	fi
 
 	if test $os == "Windows" ; then
-		gobuster_wordlist=$gobuster_dir_windows_wordlist
-		gobuster_extensions=$gobuster_dir_windows_extensions
+		gobuster_wordlist=$feroxbuster_dir_windows_wordlist
+		gobuster_extensions=$feroxbuster_dir_windows_extensions
 	elif test $os == "Unknown" ; then
-		gobuster_wordlist=$gobuster_dir_unknown_wordlist
-		gobuster_extensions=$gobuster_dir_unknown_extensions
+		gobuster_wordlist=$feroxbuster_dir_unknown_wordlist
+		gobuster_extensions=$feroxbuster_dir_unknown_extensions
 	else
-		gobuster_wordlist=$gobuster_dir_linux_wordlist
-		gobuster_extensions=$gobuster_dir_linux_extensions
+		gobuster_wordlist=$feroxbuster_dir_linux_wordlist
+		gobuster_extensions=$feroxbuster_dir_linux_extensions
 	fi
 
 	if [[ -n "$temp_wordlist" ]] ; then
@@ -394,16 +394,18 @@ nikto_scan () {
 	fi
 }
 
-#gobuster dir scan, $1 --> protocol, $2 --> port
-gobuster_dir () {
-	print_yellow "[+] Running gobuster on port $2..." > $folder/tmp/gobuster_dir\ scan.tmp
-	gobuster dir -u $1://$hostname:$2 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -q -k -d --output $1/gobuster_dir_$2_$name.txt >/dev/null 2>&1
+#feroxbuster scan, $1 --> protocol, $2 --> port
+feroxbuster_dir () {
+	print_yellow "[+] Running feroxbuster on port $2..." > $folder/tmp/feroxbuster_dir\ scan.tmp
+	feroxbuster -u $1://$hostname:$2 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q > $1/feroxbuster_dir_$2_$name.txt
+	sed -i '/Auto-filtering found 404-like response and created new filter/d' $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
+	sed -i '/^$/d' $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
 # Print the final message
-	if ! [ -s $1/gobuster_dir_$2_$name.txt ] ; then
-		rm $1/gobuster_dir_$2_$name.txt
-		print_red "[-] Gobuster dir on port $2 found nothing!" > $folder/tmp/gobuster_dir\ scan.tmp
+	if ! [ -s $1/feroxbuster_dir_$2_$name.txt ] ; then
+		rm $1/feroxbuster_dir_$2_$name.txt
+		print_red "[-] feroxbuster on port $2 found nothing!" > $folder/tmp/feroxbuster_dir\ scan.tmp
 	else
-		print_green "[-] Gobuster dir on port $2 done!" > $folder/tmp/gobuster_dir\ scan.tmp
+		print_green "[-] feroxbuster on port $2 done!" > $folder/tmp/feroxbuster_dir\ scan.tmp
 	fi
 }
 #gobuster vhost scan, $1 --> protocol, $2 --> port
@@ -470,24 +472,15 @@ whatweb_scan () {
 }
 # enumerate http verbs, $1 --> protocol, $2 --> port
 http_verbs () {
-	if ! [ -e $1/gobuster_dir_$2_$name.txt ] ; then
-		print_red "[-] $1/gobuster_dir_$2_$name.txt is blank"
+	if ! [ -e $1/feroxbuster_dir_$2_$name.txt ] ; then
+		print_red "[-] $1/feroxbuster_dir_$2_$name.txt is blank"
 	else
         print_yellow "[+] Enumerating http-verbs from gobuster results on port $2..."
-        not_redirected=$(cat $1/gobuster_dir_$2_$name.txt | grep -E '\(Status: 2|\(Status: 401' | cut -d ' ' -f1)
-        redirected=$(cat $1/gobuster_dir_$2_$name.txt | grep "(Status: 3" | awk -F' ' '{print $7}' | cut -d ']' -f 1)
-        concatenation=""
-        for i in $not_redirected ; do
-            concatenation+="$1://$hostname:$2$i "
-        done
+        concatenation=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '200      GET|401      GET' | awk '{print $NF}')
+        redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
         for r in $redirected ; do
-           i=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/') 
-            if [[ ${i:0:4} == "http" ]] ; then
-                concatenation+="$i "
-            else
-                concatenation+="$1://$hostname:$2$i "
-            fi
-
+           concatenation=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/') 
+           concatenation=$(echo "$r" | sed 's/localhost/'$hostname'/') 
         done
         concatenation=$(echo $concatenation | xargs -n1 |sort -u)
         for i in $concatenation; do
@@ -556,7 +549,7 @@ check_port_80 () {
 	portz=$(echo "$temp_80" | grep "/tcp" | cut -d ' ' -f1 | cut -d '/' -f1  | rev | cut -c 1- | rev)
 	mkdir http
  	print_yellow "[+] Starting web scans..."
-	if [[ $gobusterAnswer == "dir" ]] ; then
+	if [[ $busterAnswer == "dir" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
 			processes["hakrawler scan"]="$!"
@@ -567,8 +560,8 @@ check_port_80 () {
 			whatweb_scan "http" $i &
 			processes["whatweb scan"]="$!"
 			#gobuster_vhost "http" $i
-			gobuster_dir "http" $i &
-			processes["gobuster_dir scan"]="$!"
+			feroxbuster_dir "http" $i &
+			processes["feroxbuster_dir scan"]="$!"
 			echo ""
 			echo ""
 			echo ""
@@ -583,7 +576,7 @@ check_port_80 () {
 		done
   		print_green "[-] http web scans complete"
 	fi
-	if [[ $gobusterAnswer == "vhost" ]] ; then
+	if [[ $busterAnswer == "vhost" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
 			processes["hakrawler scan"]="$!"
@@ -604,13 +597,13 @@ check_port_80 () {
 			echo ""
 			activity
 			unset processes[*]
-			#gobuster_dir "http" $i
+			#feroxbuster_dir "http" $i
 			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
   		print_green "[-] http web scans complete"
 	fi
-	if [[ $gobusterAnswer == "all" ]] ; then
+	if [[ $busterAnswer == "all" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
 			processes["hakrawler scan"]="$!"
@@ -631,8 +624,8 @@ check_port_80 () {
 			echo ""
 			activity
 			unset processes[*]
-			gobuster_dir "http" $i &
-			processes["gobuster_dir scan"]="$!"
+			feroxbuster_dir "http" $i &
+			processes["feroxbuster_dir scan"]="$!"
 			echo ""
 			echo ""
 			echo ""
@@ -647,7 +640,7 @@ check_port_80 () {
 		done
   		print_green "[-] http web scans complete"
 	fi
-	if [[ $gobusterAnswer == "N" ]] ; then
+	if [[ $busterAnswer == "N" ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
 			processes["hakrawler scan"]="$!"
@@ -667,13 +660,13 @@ check_port_80 () {
 			activity
 			unset processes[*]
 			#gobuster_vhost "http" $i
-			#gobuster_dir "http" $i
+			#feroxbuster_dir "http" $i
 			#http_verbs "http" $i 
 			#add more scans on port 80!
 		done
   		print_green "[-] http web scans complete"
 	fi
-	if [[ -z $gobusterAnswer ]] ; then
+	if [[ -z $busterAnswer ]] ; then
 		for i in ${portz[@]}; do
 			hakrawler_crawl "http" $i &
 			processes["hakrawler scan"]="$!"
@@ -684,8 +677,8 @@ check_port_80 () {
 			whatweb_scan "http" $i &
 			processes["whatweb scan"]="$!"
 			#gobuster_vhost "http" $i
-			gobuster_dir "http" $i &
-			processes["gobuster_dir scan"]="$!"
+			feroxbuster_dir "http" $i &
+			processes["feroxbuster_dir scan"]="$!"
 			echo ""
 			echo ""
 			echo ""
@@ -709,7 +702,7 @@ check_port_443 () {
 	if [[ -n $temp_443 ]] ; then
 		mkdir https
   		print_yellow "[+] Starting https web scans..."
-		if [[ -z $gobusterAnswer ]] ; then
+		if [[ -z $busterAnswer ]] ; then
 			hakrawler_crawl "https" "443" &
 			processes["hakrawler scan"]="$!"
 			nikto_scan "https" "443" &
@@ -719,8 +712,8 @@ check_port_443 () {
 			whatweb_scan "https" "443" &
 			processes["whatweb scan"]="$!"
 			#gobuster_vhost "https" "443"
-			gobuster_dir "https" "443" &
-			processes["gobuster_dir scan"]="$!"
+			feroxbuster_dir "https" "443" &
+			processes["feroxbuster_dir scan"]="$!"
 			echo ""
 			echo ""
 			echo ""
@@ -733,7 +726,7 @@ check_port_443 () {
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
 		fi
-		if [[ $gobusterAnswer == "N" ]] ; then
+		if [[ $busterAnswer == "N" ]] ; then
 			hakrawler_crawl "https" "443" &
 			processes["hakrawler scan"]="$!"
 			nikto_scan "https" "443" &
@@ -743,7 +736,7 @@ check_port_443 () {
 			whatweb_scan "https" "443" &
 			processes["whatweb scan"]="$!"
 			#gobuster_vhost "https" "443"
-			#gobuster_dir "https" "443"
+			#feroxbuster_dir "https" "443"
 			#http_verbs "https" "443" &
 			#add more scans on port 443!
 			echo ""
@@ -756,7 +749,7 @@ check_port_443 () {
 			activity
    			print_green "[-] https web scans complete"
 		fi
-		if [[ $gobusterAnswer == "all" ]] ; then
+		if [[ $busterAnswer == "all" ]] ; then
 			hakrawler_crawl "https" "443" &
 			processes["hakrawler scan"]="$!"
 			nikto_scan "https" "443" &
@@ -775,8 +768,8 @@ check_port_443 () {
 	                echo ""
 	                echo ""
 	                activity
-			gobuster_dir "https" "443" &
-	                processes["gobuster_dir scan"]="$!"
+			feroxbuster_dir "https" "443" &
+	                processes["feroxbuster_dir scan"]="$!"
 	                echo ""
 	                echo ""
 	                echo ""
@@ -789,7 +782,7 @@ check_port_443 () {
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
 		fi
-		if [[ $gobusterAnswer == "vhost" ]] ; then
+		if [[ $busterAnswer == "vhost" ]] ; then
 			hakrawler_crawl "https" "443" &
 	                processes["hakrawler scan"]="$!"
 			nikto_scan "https" "443" &
@@ -800,7 +793,7 @@ check_port_443 () {
 	                processes["whatweb scan"]="$!"
 			gobuster_vhost "https" "443" &
 	                processes["gobuster_vhost scan"]="$!"
-			#gobuster_dir "https" "443"
+			#feroxbuster_dir "https" "443"
 	                echo ""
 	                echo ""
 	                echo ""
@@ -813,7 +806,7 @@ check_port_443 () {
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
 		fi
-		if [[ $gobusterAnswer == "dir" ]] ; then
+		if [[ $busterAnswer == "dir" ]] ; then
 			hakrawler_crawl "https" "443" &
 	                processes["hakrawler scan"]="$!"
 			nikto_scan "https" "443" &
@@ -823,8 +816,8 @@ check_port_443 () {
 			whatweb_scan "https" "443" &
 	                processes["whatweb scan"]="$!"
 			#gobuster_vhost "https" "443"
-			gobuster_dir "https" "443" &
-	                processes["gobuster_dir scan"]="$!"
+			feroxbuster_dir "https" "443" &
+	                processes["feroxbuster_dir scan"]="$!"
 	                echo ""
 	                echo ""
 	                echo ""
@@ -851,7 +844,8 @@ all_scans() {
 	if [[ $stepbystep -ne "1" ]] ; then
 		quick_nmap
 		echo ""
-		read -t 15 -p "Do you want to run gobuster? enter one of the folowing (dir/vhost/all/N) dir is default: " gobusterAnswer
+		echo "dir busting is done with feroxbuster while vhost is done with gobuster"
+		read -t 15 -p "Do you want to run a dir buster? enter one of the folowing (dir/vhost/all/N) dir is default: " busterAnswer
 		echo ""
 		slow_nmap
 		nse_nmap
@@ -867,7 +861,8 @@ all_scans() {
 	else
 		quick_nmap
 		echo ""
-		read -t 15 -p "Do you want to run gobuster? enter one of the folowing (dir/vhost/all/N) dir is default: " gobusterAnswer
+		echo "dir busting is done with feroxbuster while vhost is done with gobuster"
+		read -t 15 -p "Do you want to run a dir buster? enter one of the folowing (dir/vhost/all/N) dir is default: " busterAnswer
 		echo ""
 		slow_nmap
 		nse_nmap
