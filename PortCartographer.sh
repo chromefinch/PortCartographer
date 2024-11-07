@@ -421,14 +421,23 @@ feroxbuster_redir () {
 	done
 	echo "$fixed" > $folder/tmp/temp.txt 2> /dev/null
 	sort -u $folder/tmp/temp.txt > $folder/tmp/redirects.txt
-	cat $folder/tmp/redirects.txt | feroxbuster --stdin --parallel 10 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
+	cat $folder/tmp/redirects.txt | feroxbuster --stdin --parallel 10 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$name.txt 2> /dev/null&
+    feroxbuster_redir_pid=$!
+    # Display PID and initial progress message
+    printf "feroxbuster redirect scan: $feroxbuster_redir_pid "
+    # Wait for the nmap process to finish and update progress
+    while kill -0 $feroxbuster_redir_pid 2> /dev/null; do
+        printf "\b${sp:i++%${#sp}:1}"
+        sleep 0.1
+    done
+	
 	sed -i '/Auto-filtering found 404-like response and created new filter/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
 	sed -i '/^$/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
 	if grep -q 'skipping...$' $1/feroxbuster_redir_$2_$name.txt; then
   		rm $1/feroxbuster_redir_$2_$name.txt
 		touch $1/feroxbuster_redir_$2_$name.txt
   	fi
-	cat $1/feroxbuster_redir_$2_$name.txt >> $1/feroxbuster_dir_$2_$name.txt
+	cat $1/feroxbuster_redir_$2_$name.txt >> $1/feroxbuster_dir_$2_$name.txt  2> /dev/null
 # Print the final message
 	if ! [ -s $1/feroxbuster_redir_$2_$name.txt ] ; then
 		rm $1/feroxbuster_redir_$2_$name.txt
