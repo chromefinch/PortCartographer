@@ -404,22 +404,37 @@ feroxbuster_dir () {
   		rm $1/feroxbuster_dir_$2_$name.txt
 		touch $1/feroxbuster_dir_$2_$name.txt
   	fi
-	redirects=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
-	    for r in $redirects ; do
-           fixed=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/') 2> /dev/null
-		done
-		echo "$fixed" > $folder/tmp/temp.txt 2> /dev/null
-		sort -u $folder/tmp/temp.txt > $folder/tmp/redirects.txt
-		while read -r url; do
-		   print_yellow "[+] Rerunning feroxbuster against fixed redirects $url..." > $folder/tmp/feroxbuster_dir\ scan.tmp
-		   feroxbuster -u $url -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q >> $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
-        done < $folder/tmp/redirects.txt
 # Print the final message
 	if ! [ -s $1/feroxbuster_dir_$2_$name.txt ] ; then
 		rm $1/feroxbuster_dir_$2_$name.txt
 		print_red "[-] feroxbuster on port $2 found nothing!               " > $folder/tmp/feroxbuster_dir\ scan.tmp
 	else
 		print_green "[-] feroxbuster on port $2 done!               " > $folder/tmp/feroxbuster_dir\ scan.tmp
+	fi
+}
+#feroxbuster redirect scan, $1 --> protocol, $2 --> port
+feroxbuster_redir () {
+	print_yellow "[+] feroxbuster scaning redirects..." 
+	redirects=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
+	for r in $redirects ; do
+		fixed=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/') 2> /dev/null
+	done
+	echo "$fixed" > $folder/tmp/temp.txt 2> /dev/null
+	sort -u $folder/tmp/temp.txt > $folder/tmp/redirects.txt
+	cat $folder/tmp/redirects.txt | feroxbuster --stdin --parallel 10 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
+	sed -i '/Auto-filtering found 404-like response and created new filter/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
+	sed -i '/^$/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
+	if grep -q 'skipping...$' $1/feroxbuster_redir_$2_$name.txt; then
+  		rm $1/feroxbuster_redir_$2_$name.txt
+		touch $1/feroxbuster_redir_$2_$name.txt
+  	fi
+	cat $1/feroxbuster_redir_$2_$name.txt >> $1/feroxbuster_dir_$2_$name.txt
+# Print the final message
+	if ! [ -s $1/feroxbuster_redir_$2_$name.txt ] ; then
+		rm $1/feroxbuster_redir_$2_$name.txt
+		print_red "[-] feroxbuster on port $2 found no redirects!"
+	else
+		print_green "[-] feroxbuster redirect scan on port $2 done!"
 	fi
 }
 #gobuster vhost scan, $1 --> protocol, $2 --> port
