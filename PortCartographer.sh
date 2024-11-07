@@ -404,20 +404,22 @@ feroxbuster_dir () {
   		rm $1/feroxbuster_dir_$2_$name.txt
 		touch $1/feroxbuster_dir_$2_$name.txt
   	fi
-	redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
-	    for r in $redirected ; do
-           fixed=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/') 
-           fixed=$(echo "$r" | sed 's/localhost/'$hostname'/')
-		   fixedredirect=$(echo $fixed | xargs -n1 |sort -u)
-		   print_yellow "[+] Running smart redirect feroxbuster agains $fixedredirect..." > $folder/tmp/feroxbuster_dir\ scan.tmp
-		   feroxbuster -u $fixedredirect -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q >> $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
-        done
+	redirects=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
+	    for r in $redirects ; do
+           fixed=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/') 2> /dev/null
+		done
+		echo "$fixed" > $folder/tmp/temp.txt 2> /dev/null
+		sort -u $folder/tmp/temp.txt > $folder/tmp/redirects.txt
+		while read -r url; do
+		   print_yellow "[+] Rerunning feroxbuster against fixed redirects $url..." > $folder/tmp/feroxbuster_dir\ scan.tmp
+		   feroxbuster -u $url -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q >> $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
+        done < $folder/tmp/redirects.txt
 # Print the final message
 	if ! [ -s $1/feroxbuster_dir_$2_$name.txt ] ; then
 		rm $1/feroxbuster_dir_$2_$name.txt
-		print_red "[-] feroxbuster on port $2 found nothing!" > $folder/tmp/feroxbuster_dir\ scan.tmp
+		print_red "[-] feroxbuster on port $2 found nothing!               " > $folder/tmp/feroxbuster_dir\ scan.tmp
 	else
-		print_green "[-] feroxbuster on port $2 done!" > $folder/tmp/feroxbuster_dir\ scan.tmp
+		print_green "[-] feroxbuster on port $2 done!               " > $folder/tmp/feroxbuster_dir\ scan.tmp
 	fi
 }
 #gobuster vhost scan, $1 --> protocol, $2 --> port
@@ -491,8 +493,7 @@ http_verbs () {
         concatenation=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '200      GET|401      GET' | awk '{print $NF}')
         redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
         for r in $redirected ; do
-           concatenation=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/') 
-           concatenation=$(echo "$r" | sed 's/localhost/'$hostname'/') 
+           concatenation=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/')
         done
         concatenation=$(echo $concatenation | xargs -n1 |sort -u)
         for i in $concatenation; do
