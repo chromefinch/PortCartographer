@@ -23,7 +23,7 @@ nikto_maxtime="3m"
 ### GOBUSTER
 ## Linux
 # directory bruteforce wordlist for detected linux machines
-feroxbuster_dir_linux_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words.txt"
+feroxbuster_dir_linux_wordlist="/usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt"
 # directory bruteforce extensions for detected linux machines
 feroxbuster_dir_linux_extensions="php,html,txt,pdf"
 
@@ -35,7 +35,7 @@ feroxbuster_dir_windows_extensions="php,html,asp,aspx,jsp,pdf,wsdl"
 
 ## Unknown OS
 # directory bruteforce wordlist for NOT detected OS
-feroxbuster_dir_unknown_wordlist="/usr/share/seclists/Discovery/Web-Content/raft-small-words.txt"
+feroxbuster_dir_unknown_wordlist="/usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt"
 # directory bruteforce extensions for NOT detected OS
 feroxbuster_dir_unknown_extensions="php,html,txt,asp,aspx,jsp,pdf,wsdl,asmx"
 
@@ -430,7 +430,7 @@ feroxbuster_redir () {
         printf "\b${sp:i++%${#sp}:1}"
         sleep 0.1
     done
-	
+
 	sed -i '/Auto-filtering found 404-like response and created new filter/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
 	sed -i '/^$/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
 	if grep -q 'skipping...$' $1/feroxbuster_redir_$2_$name.txt; then
