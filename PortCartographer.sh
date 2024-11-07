@@ -400,6 +400,18 @@ feroxbuster_dir () {
 	feroxbuster -u $1://$hostname:$2 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q > $1/feroxbuster_dir_$2_$name.txt
 	sed -i '/Auto-filtering found 404-like response and created new filter/d' $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
 	sed -i '/^$/d' $1/feroxbuster_dir_$2_$name.txt 2> /dev/null
+	if grep -q 'skipping...$' $1/feroxbuster_dir_$2_$name.txt; then
+  		rm $1/feroxbuster_dir_$2_$name.txt
+		touch $1/feroxbuster_dir_$2_$name.txt
+  	fi
+	redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
+	    for r in $redirected ; do
+           fixed=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/') 
+           fixed=$(echo "$r" | sed 's/localhost/'$hostname'/')
+		   fixedredirect=$(echo $fixed | xargs -n1 |sort -u)
+		   print_yellow "[+] Running smart redirect feroxbuster agains $fixedredirect..." > $folder/tmp/feroxbuster_dir\ scan.tmp
+		   feroxbuster -u $fixedredirect -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --dont-scan '/(js|css|images|img|icons)' --extract-links --scan-dir-listings -q >> $1/feroxbuster_dir_$2_$name.txt
+        done
 # Print the final message
 	if ! [ -s $1/feroxbuster_dir_$2_$name.txt ] ; then
 		rm $1/feroxbuster_dir_$2_$name.txt
