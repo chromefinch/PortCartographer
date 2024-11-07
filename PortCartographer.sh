@@ -431,6 +431,9 @@ feroxbuster_redir () {
         sleep 0.1
     done
 
+	# Clear the progress line
+	printf "\r\033[K"
+
 	sed -i '/Auto-filtering found 404-like response and created new filter/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
 	sed -i '/^$/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
 	if grep -q 'skipping...$' $1/feroxbuster_redir_$2_$name.txt; then
