@@ -417,7 +417,7 @@ feroxbuster_redir () {
 	print_yellow "[+] feroxbuster scaning redirects..." 
 	redirects=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
 	for r in $redirects ; do
-		fixed=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/') 2> /dev/null
+		fixed+=$(echo "$r" | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/') 2> /dev/null
 	done
 	echo "$fixed" > $folder/tmp/temp.txt 2> /dev/null
 	sort -u $folder/tmp/temp.txt > $folder/tmp/redirects.txt
