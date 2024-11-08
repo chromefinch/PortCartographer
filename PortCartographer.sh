@@ -421,7 +421,7 @@ feroxbuster_redir () {
 	done
 	fixed+=$(echo $fixed | xargs -n1 |sort -u)
  	for f in $fixed; do
-		feroxbuster -u $fixed -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$fixed.txt 2> /dev/null&
+		feroxbuster -u $f -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$fixed.txt 2> /dev/null&
 		feroxbuster_redir_pid=$!
 		# Display PID and initial progress message
 		printf "feroxbuster redirect scaning for $fixed: $feroxbuster_redir_pid "
