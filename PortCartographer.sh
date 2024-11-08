@@ -415,9 +415,9 @@ feroxbuster_dir () {
 #feroxbuster redirect scan, $1 --> protocol, $2 --> port
 feroxbuster_redir () {
 	print_yellow "[+] feroxbuster scaning redirects..." 
- 	if ! [ -s $1/feroxbuster_redir_$2_$name.txt ] ; then
-		rm $1/feroxbuster_redir_$2_$name.txt
-		print_red "[-] $1/feroxbuster_redir_$2_$name.txt was empty"
+ 	if ! [ -s $1/feroxbuster_dir_$2_$name.txt ] ; then
+		rm $1/feroxbuster_dir_$2_$name.txt
+		print_red "[-] $1/feroxbuster_dir_$2_$name.txt was empty"
 	else
 	redirects=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
 	for r in $redirects ; do
