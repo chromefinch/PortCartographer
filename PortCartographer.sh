@@ -457,7 +457,7 @@ feroxbuster_redir () {
 	if ! [ -e $1/feroxbuster_dir_$2_$name.txt ] ; then
 		print_red "[-] Unable to enumerate, $1/feroxbuster_dir_$2_$name.txt is blank"
 	else
-        print_yellow "[+] Enumerating http-verbs from gobuster results on port $2..."
+        print_yellow "[+] Enumerating http-verbs from feroxbuster results on port $2..."
         not_redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '200      GET|401      GET' | awk '{print $NF}')
         redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
         for i in $not_redirected ; do
