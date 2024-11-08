@@ -453,7 +453,7 @@ feroxbuster_redir () {
 	else
 		print_green "[-] feroxbuster redirect scan on port $2 done!"
 	fi
-}
+
 	if ! [ -e $1/feroxbuster_dir_$2_$name.txt ] ; then
 		print_red "[-] Unable to enumerate, $1/feroxbuster_dir_$2_$name.txt is blank"
 	else
@@ -478,6 +478,7 @@ feroxbuster_redir () {
         done
         print_green "[-] Enumeration http-verbs on port $2 done!"
     fi
+}
 #gobuster vhost scan, $1 --> protocol, $2 --> port
 gobuster_vhost () {
 	if test $hostname != $ip ; then
