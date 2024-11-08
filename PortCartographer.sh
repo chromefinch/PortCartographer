@@ -337,7 +337,7 @@ slow_nmap() {
   # Display PID and initial progress message
   printf "Deep Nmap scan PID: $slow_nmap_pid "
 
-  # Wait for the nmap process to finish and update progress
+  # Wait for the process to finish and update progress
   while kill -0 $slow_nmap_pid 2> /dev/null; do
     printf "\b${sp:i++%${#sp}:1}"
     sleep 0.1
@@ -358,7 +358,7 @@ nse_nmap () {
     nse_nmap_pid=$!
     # Display PID and initial progress message
     printf "NSE Nmap scan PID: $nse_nmap_pid "
-    # Wait for the nmap process to finish and update progress
+    # Wait for the process to finish and update progress
     while kill -0 $nse_nmap_pid 2> /dev/null; do
         printf "\b${sp:i++%${#sp}:1}"
         sleep 0.1
@@ -417,15 +417,15 @@ feroxbuster_redir () {
 	print_yellow "[+] feroxbuster scaning redirects..." 
 	redirects=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
 	for r in $redirects ; do
-		fixed+=$(echo "$r " | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/') 2> /dev/null
+		fix+=$(echo "$r " | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/') 2> /dev/null
 	done
-	fixed+=$(echo $fixed | xargs -n1 |sort -u)
+	fixed+=$(echo $fix | xargs -n1 |sort -u)
  	for f in $fixed; do
 		feroxbuster -u $f -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$fixed.txt 2> /dev/null&
 		feroxbuster_redir_pid=$!
 		# Display PID and initial progress message
-		printf "feroxbuster redirect scaning for $f: $feroxbuster_redir_pid "
-		# Wait for the nmap process to finish and update progress
+		printf "feroxbuster redirect scaning for $f with pid: $feroxbuster_redir_pid "
+		# Wait for the process to finish and update progress
 		while kill -0 $feroxbuster_redir_pid 2> /dev/null; do
 		printf "\b${sp:i++%${#sp}:1}"
 		sleep 0.1
@@ -452,8 +452,6 @@ feroxbuster_redir () {
 		print_green "[-] feroxbuster redirect scan on port $2 done!"
 	fi
 }
-# enumerate http verbs, $1 --> protocol, $2 --> port
-http_verbs () {
 	if ! [ -e $1/feroxbuster_dir_$2_$name.txt ] ; then
 		print_red "[-] Unable to enumerate, $1/feroxbuster_dir_$2_$name.txt is blank"
 	else
@@ -478,7 +476,6 @@ http_verbs () {
         done
         print_green "[-] Enumeration http-verbs on port $2 done!"
     fi
-}
 #gobuster vhost scan, $1 --> protocol, $2 --> port
 gobuster_vhost () {
 	if test $hostname != $ip ; then
@@ -618,7 +615,6 @@ check_port_80 () {
 			activity
 			unset processes[*]
 			feroxbuster_redir "http" $i
-			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
   		print_green "[-] http web scans complete"
@@ -645,7 +641,6 @@ check_port_80 () {
 			activity
 			unset processes[*]
 			#feroxbuster_dir "http" $i
-			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
   		print_green "[-] http web scans complete"
@@ -683,7 +678,6 @@ check_port_80 () {
 			activity
 			unset processes[*]
 			feroxbuster_redir "http" $i
-			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
   		print_green "[-] http web scans complete"
@@ -737,7 +731,6 @@ check_port_80 () {
 			activity
 			unset processes[*]
 			feroxbuster_redir "http" $i
-			http_verbs "http" $i 
 			#add more scans on port 80!
 		done
   		print_green "[-] http web scans complete"
@@ -772,7 +765,6 @@ check_port_443 () {
 			echo ""
 			activity
 			feroxbuster_redir "https" "443"
-			http_verbs "https" "443" 
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
 		fi
@@ -829,7 +821,6 @@ check_port_443 () {
 	                echo ""
 	                activity
 			feroxbuster_redir "https" "443"
-			http_verbs "https" "443" 
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
 		fi
@@ -854,7 +845,6 @@ check_port_443 () {
 	                echo ""
 	                activity
 			feroxbuster_redir "https" "443"
-			http_verbs "https" "443" 
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
 		fi
@@ -879,7 +869,6 @@ check_port_443 () {
 	                echo ""
 	                activity
 			feroxbuster_redir "https" "443"
-			http_verbs "https" "443" 
 			#add more scans on port 443!
    			print_green "[-] https web scans complete"
 		fi
