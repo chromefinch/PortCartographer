@@ -424,7 +424,7 @@ feroxbuster_redir () {
 		feroxbuster -u $f -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$fixed.txt 2> /dev/null&
 		feroxbuster_redir_pid=$!
 		# Display PID and initial progress message
-		printf "feroxbuster redirect scaning for $fixed: $feroxbuster_redir_pid "
+		printf "feroxbuster redirect scaning for $f: $feroxbuster_redir_pid "
 		# Wait for the nmap process to finish and update progress
 		while kill -0 $feroxbuster_redir_pid 2> /dev/null; do
 		printf "\b${sp:i++%${#sp}:1}"
