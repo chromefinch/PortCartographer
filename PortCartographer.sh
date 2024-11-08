@@ -466,8 +466,8 @@ feroxbuster_redir () {
         for r in $redirected ; do
            concatenation+=$(echo "$r " | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/')
         done
-        concatenation+=$(echo $concatenation | xargs -n1 |sort -u)
-        for i in $concatenation; do
+        scan+=$(echo $concatenation | xargs -n1 |sort -u)
+        for i in $scan; do
             verb_result=$(curl -sSikI -X OPTIONS "$i" | grep -w -E 'HTTP|Allow:' | sed "s|HTTP/1.1 404 Not Found||g")
             test=${#verb_result}
             if [[ $test > "1" ]] ; then
