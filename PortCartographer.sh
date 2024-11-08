@@ -416,8 +416,7 @@ feroxbuster_dir () {
 feroxbuster_redir () {
 	print_yellow "[+] feroxbuster scaning redirects..." 
  	if ! [ -s $1/feroxbuster_dir_$2_$name.txt ] ; then
-		rm $1/feroxbuster_dir_$2_$name.txt
-		print_red "[-] $1/feroxbuster_dir_$2_$name.txt was empty"
+		print_red "[-] $1/feroxbuster_dir_$2_$name.txt was empty, skipping"
 	else
 	redirects=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
 	for r in $redirects ; do
@@ -457,9 +456,9 @@ feroxbuster_redir () {
 	else
 		print_green "[-] feroxbuster redirect scan on port $2 done!"
 	fi
-
+# start verb enumn
 	if ! [ -e $1/feroxbuster_dir_$2_$name.txt ] ; then
-		print_red "[-] Unable to enumerate, $1/feroxbuster_dir_$2_$name.txt is blank"
+		print_red "[-] Unable to enumerate, $1/feroxbuster_dir_$2_$name.txt is blank, skipping"
 	else
         print_yellow "[+] Enumerating http-verbs from feroxbuster results on port $2..."
         not_redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '200      GET|401      GET' | awk '{print $NF}')
