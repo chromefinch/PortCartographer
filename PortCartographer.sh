@@ -419,27 +419,30 @@ feroxbuster_redir () {
 	for r in $redirects ; do
 		fixed+=$(echo "$r " | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/') 2> /dev/null
 	done
-	echo "$fixed" > $folder/tmp/temp.txt 2> /dev/null
-	sort -u $folder/tmp/temp.txt > $folder/tmp/redirects.txt
-	cat $folder/tmp/redirects.txt | feroxbuster --stdin --parallel 10 -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$name.txt 2> /dev/null&
-    feroxbuster_redir_pid=$!
-    # Display PID and initial progress message
-    printf "feroxbuster redirect scan: $feroxbuster_redir_pid "
-    # Wait for the nmap process to finish and update progress
-    while kill -0 $feroxbuster_redir_pid 2> /dev/null; do
-        printf "\b${sp:i++%${#sp}:1}"
-        sleep 0.1
-    done
-
-	# Clear the progress line
-	printf "\r\033[K"
+	fixed+=$(echo $fixed | xargs -n1 |sort -u)
+ 	for f in $fixed; do
+		feroxbuster -u $fixed -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$fixed.txt 2> /dev/null&
+		feroxbuster_redir_pid=$!
+		# Display PID and initial progress message
+		printf "feroxbuster redirect scaning for $fixed: $feroxbuster_redir_pid "
+		# Wait for the nmap process to finish and update progress
+		while kill -0 $feroxbuster_redir_pid 2> /dev/null; do
+		printf "\b${sp:i++%${#sp}:1}"
+		sleep 0.1
+		done
+		# Clear the progress line
+		printf "\r\033[K"
+	if grep -q 'skipping...$' $1/feroxbuster_redir_$2_$fixed.txt; then
+		rm $1/feroxbuster_redir_$2_$fixed.txt
+  	else
+   		cat $1/feroxbuster_redir_$2_$fixed.txt >> $1/feroxbuster_redir_$2_$name.txt
+     		rm $1/feroxbuster_redir_$2_$fixed.txt
+  	fi
+  	done
 
 	sed -i '/Auto-filtering found 404-like response and created new filter/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
 	sed -i '/^$/d' $1/feroxbuster_redir_$2_$name.txt 2> /dev/null
-	if grep -q 'skipping...$' $1/feroxbuster_redir_$2_$name.txt; then
-  		rm $1/feroxbuster_redir_$2_$name.txt
-		touch $1/feroxbuster_redir_$2_$name.txt
-  	fi
+
 	cat $1/feroxbuster_redir_$2_$name.txt >> $1/feroxbuster_dir_$2_$name.txt  2> /dev/null
 # Print the final message
 	if ! [ -s $1/feroxbuster_redir_$2_$name.txt ] ; then
@@ -448,6 +451,33 @@ feroxbuster_redir () {
 	else
 		print_green "[-] feroxbuster redirect scan on port $2 done!"
 	fi
+}
+# enumerate http verbs, $1 --> protocol, $2 --> port
+http_verbs () {
+	if ! [ -e $1/feroxbuster_dir_$2_$name.txt ] ; then
+		print_red "[-] Unable to enumerate, $1/feroxbuster_dir_$2_$name.txt is blank"
+	else
+        print_yellow "[+] Enumerating http-verbs from gobuster results on port $2..."
+        not_redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '200      GET|401      GET' | awk '{print $NF}')
+        redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
+        for i in $not_redirected ; do
+           concatenation+="$not_redirected "
+        done
+        for r in $redirected ; do
+           concatenation+=$(echo "$r " | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/')
+        done
+        concatenation+=$(echo $concatenation | xargs -n1 |sort -u)
+        for i in $concatenation; do
+            verb_result=$(curl -sSikI -X OPTIONS "$i" | grep -w -E 'HTTP|Allow:' | sed "s|HTTP/1.1 404 Not Found||g")
+            test=${#verb_result}
+            if [[ $test > "1" ]] ; then
+                echo $i >> $1/$1-verbs.txt
+                echo $verb_result >> $1/$1-verbs.txt
+                echo "---" >> $1/$1-verbs.txt
+            fi
+        done
+        print_green "[-] Enumeration http-verbs on port $2 done!"
+    fi
 }
 #gobuster vhost scan, $1 --> protocol, $2 --> port
 gobuster_vhost () {
@@ -510,33 +540,6 @@ whatweb_scan () {
 		sudo rm $1/whatweb_$2_$name.txt 2>/dev/null
 		print_red "[-] Whatweb done & $1/whatweb_$2_$name.txt is empty, deleted" > $folder/tmp/whatweb\ scan.tmp
 	fi
-}
-# enumerate http verbs, $1 --> protocol, $2 --> port
-http_verbs () {
-	if ! [ -e $1/feroxbuster_dir_$2_$name.txt ] ; then
-		print_red "[-] Unable to enumerate, $1/feroxbuster_dir_$2_$name.txt is blank"
-	else
-        print_yellow "[+] Enumerating http-verbs from gobuster results on port $2..."
-        not_redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '200      GET|401      GET' | awk '{print $NF}')
-        redirected=$(cat $1/feroxbuster_dir_$2_$name.txt | grep -E '3..      GET' | awk '{print $NF}')
-        for i in $not_redirected ; do
-           concatenation+="$not_redirected "
-        done
-        for r in $redirected ; do
-           concatenation+=$(echo "$r " | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/')
-        done
-        concatenation+=$(echo $concatenation | xargs -n1 |sort -u)
-        for i in $concatenation; do
-            verb_result=$(curl -sSikI -X OPTIONS "$i" | grep -w -E 'HTTP|Allow:' | sed "s|HTTP/1.1 404 Not Found||g")
-            test=${#verb_result}
-            if [[ $test > "1" ]] ; then
-                echo $i >> $1/$1-verbs.txt
-                echo $verb_result >> $1/$1-verbs.txt
-                echo "---" >> $1/$1-verbs.txt
-            fi
-        done
-        print_green "[-] Enumeration http-verbs on port $2 done!"
-    fi
 }
 #run enum4linux if ports 139,389 or 445 are open
 check_smb() {
