@@ -420,8 +420,10 @@ feroxbuster_redir () {
 		fix+=$(echo "$r " | sed 's/127.0.0.1/'$hostname'/; s/localhost/'$hostname'/') 2> /dev/null
 	done
 	fixed+=$(echo $fix | xargs -n1 |sort -u)
+ 	c=0
  	for f in $fixed; do
-		feroxbuster -u $f -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$fixed.txt 2> /dev/null&
+  		c=$((c + 1))
+		feroxbuster -u $f -w $gobuster_wordlist -x $gobuster_extensions -t $gobuster_threads -k --filter-status 404 --extract-links --scan-dir-listings -q > $1/feroxbuster_redir_$2_$c.txt 2> /dev/null&
 		feroxbuster_redir_pid=$!
 		# Display PID and initial progress message
 		printf "feroxbuster redirect scaning for $f with pid: $feroxbuster_redir_pid "
@@ -432,11 +434,11 @@ feroxbuster_redir () {
 		done
 		# Clear the progress line
 		printf "\r\033[K"
-	if grep -q 'skipping...$' $1/feroxbuster_redir_$2_$fixed.txt; then
-		rm $1/feroxbuster_redir_$2_$fixed.txt
+	if grep -q 'skipping...$' $1/feroxbuster_redir_$2_$c.txt; then
+		rm $1/feroxbuster_redir_$2_$c.txt
   	else
-   		cat $1/feroxbuster_redir_$2_$fixed.txt >> $1/feroxbuster_redir_$2_$name.txt
-     		rm $1/feroxbuster_redir_$2_$fixed.txt
+   		cat $1/feroxbuster_redir_$2_$c.txt >> $1/feroxbuster_redir_$2_$name.txt
+     		rm $1/feroxbuster_redir_$2_$c.txt
   	fi
   	done
 
