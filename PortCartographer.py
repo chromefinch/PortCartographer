@@ -107,7 +107,7 @@ def nmap_quick_scan(target_ip, target_name, scans_dir, nmap_ports_arg_to_use):
     # .txt file for run_command to log stdout (which is Nmap's normal output)
     log_output_file = base_oA_path + ".txt" 
     
-    command = ["nmap", "-sS", nmap_ports_arg_to_use, "-n", "-Pn", "--min-rate", "5000", "-oA", base_oA_path, target_ip]
+    command = ["nmap", "-sS", "-n", "-Pn", "--min-rate", "5000", target_ip, nmap_ports_arg_to_use, "-oA", base_oA_path]
     stdout, _ = run_command(command, log_output_file) 
     
     open_ports = []
