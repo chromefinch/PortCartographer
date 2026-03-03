@@ -104,14 +104,12 @@ def nmap_quick_scan(target_ip, target_name, scans_dir, nmap_ports_arg_to_use):
     create_dir(nmap_dir)
     # Base name for -oA output (Nmap will append .nmap, .gnmap, .xml)
     base_oA_path = os.path.join(nmap_dir, f"quickNmap_{target_name}")
-    # .txt file for run_command to log stdout (which is Nmap's normal output)
     log_output_file = base_oA_path + ".txt" 
-    
-    command = ["nmap", "-sS", "-n", "-Pn", "--min-rate", "5000", target_ip, nmap_ports_arg_to_use, "-oA", base_oA_path]
+    # Break nmap_ports_arg_to_use into a list and combine it with the rest of the command
+    command = ["nmap", "-sS", "-n", "-Pn", "--min-rate", "5000", target_ip] + nmap_ports_arg_to_use.split() + ["-oA", base_oA_path]
     stdout, _ = run_command(command, log_output_file) 
-    
     open_ports = []
-    if stdout: # Parse from stdout (normal Nmap output)
+    if stdout: 
         for line in stdout.splitlines():
             match = re.search(r"^(\d+)/tcp\s+open", line)
             if match:
