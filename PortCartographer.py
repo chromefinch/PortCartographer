@@ -132,7 +132,7 @@ def nmap_deep_scan(target_ip, target_name, open_ports_str, scans_dir):
     base_oA_path = os.path.join(nmap_dir, f"deepNmap_{target_name}")
     log_output_file = base_oA_path + ".txt"
     
-    command = ["nmap", "-sS", "-A", "-p", open_ports_str, "-oA", base_oA_path, target_ip]
+    command = ["nmap", "-sS", "-A", "-Pn", "-p", open_ports_str, "-oA", base_oA_path, target_ip]
     stdout, _ = run_command(command, log_output_file)
     return stdout 
 
@@ -146,7 +146,7 @@ def nmap_scripts_scan(target_ip, target_name, open_ports_str, scans_dir):
     base_oA_path = os.path.join(nmap_dir, f"nse_{target_name}")
     log_output_file = base_oA_path + ".txt"
     
-    command = ["nmap", "-sV", "-n", "-O", "--script", NMAP_NSE_SCRIPTS, "-p", open_ports_str, "-oA", base_oA_path, target_ip]
+    command = ["nmap", "-sV", "-n", "-Pn", "-O", "--script", NMAP_NSE_SCRIPTS, "-p", open_ports_str, "-oA", base_oA_path, target_ip]
     run_command(command, log_output_file)
 
 def nmap_udp_scan(target_ip, target_name, scans_dir):
